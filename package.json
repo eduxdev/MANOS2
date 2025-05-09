@@ -1,0 +1,25 @@
+{
+  "name": "pagina",
+  "version": "1.0.0",
+  "main": "script.js",
+  "type": "module",
+  "scripts": {
+    "css": "tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/styles.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eduxdev/MANOS2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eduxdev/MANOS2/issues"
+  },
+  "homepage": "https://github.com/eduxdev/MANOS2#readme",
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.6",
+    "tailwindcss": "^4.1.6"
+  }
+}

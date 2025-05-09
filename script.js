@@ -22,20 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
             img.src = `signs/${letter}.png`;
             img.alt = letter;
             img.dataset.letter = letter;
-            img.classList.add('exercise-option');
+            img.classList.add('exercise-option', 'border', 'border-gray-300', 'rounded-lg', 'p-2');
             img.style.cursor = 'pointer';
             img.addEventListener('click', () => {
                 document.querySelectorAll('.exercise-option').forEach(option => {
-                    option.classList.remove('selected');
+                    option.classList.remove('ring-4', 'ring-indigo-500');
                 });
-                img.classList.add('selected');
+                img.classList.add('ring-4', 'ring-indigo-500');
             });
             optionsContainer.appendChild(img);
         });
     }
 
     checkAnswerButton.addEventListener('click', () => {
-        const selectedOption = document.querySelector('.exercise-option.selected');
+        const selectedOption = document.querySelector('.exercise-option.ring-4');
         if (!selectedOption) {
             feedbackElement.textContent = 'Por favor, selecciona una opción.';
             feedbackElement.style.color = 'red';
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateExercise();
 
-    const words = ['hola', 'adios', 'gracias', 'amor', 'paz'];
+    const words = ['hola', 'adios', 'gracias', 'amor', 'paz', 'familia', 'escuela', 'amigo', 'trabajo', 'felicidad']; // Added more words
     const randomWordElement = document.getElementById('random-word');
     const wordOptionsContainer = document.getElementById('word-exercise-options');
     const wordFeedbackElement = document.getElementById('word-exercise-feedback');
@@ -75,37 +75,50 @@ document.addEventListener('DOMContentLoaded', () => {
         wordOptionsContainer.innerHTML = '';
         selectedLetters = [];
 
-        shuffledLetters.forEach((letter, index) => {
+        shuffledLetters.forEach((letter) => {
             const container = document.createElement('div');
             container.style.position = 'relative';
+            container.style.display = 'inline-block'; // Ensure proper alignment
+            container.style.margin = '10px'; // Add spacing between images
 
             const img = document.createElement('img');
             img.src = `signs/${letter}.png`;
             img.alt = letter;
             img.dataset.letter = letter;
-            img.classList.add('exercise-option');
+            img.classList.add('exercise-option', 'border', 'border-gray-300', 'rounded-lg', 'p-2');
             img.style.cursor = 'pointer';
+
+            const number = document.createElement('div');
+            number.classList.add('selected-number');
+            number.style.position = 'absolute';
+            number.style.top = '50%'; // Align vertically
+            number.style.left = '105%'; // Position to the right of the image
+            number.style.transform = 'translateY(-50%)'; // Center vertically
+            number.style.backgroundColor = 'indigo';
+            number.style.color = 'white';
+            number.style.borderRadius = '50%';
+            number.style.width = '20px';
+            number.style.height = '20px';
+            number.style.display = 'flex';
+            number.style.alignItems = 'center';
+            number.style.justifyContent = 'center';
+            number.style.fontSize = '12px';
+            number.style.visibility = 'hidden'; // Initially hidden
+
             img.addEventListener('click', () => {
                 if (!selectedLetters.includes(letter)) {
                     selectedLetters.push(letter);
-                    const number = document.createElement('div');
-                    number.classList.add('selected-number');
                     number.textContent = selectedLetters.length;
-                    container.appendChild(number);
+                    number.style.visibility = 'visible';
                     img.style.opacity = '0.5';
-                    img.style.pointerEvents = 'none';
                 } else {
                     const index = selectedLetters.indexOf(letter);
                     if (index !== -1) {
                         selectedLetters.splice(index, 1);
-                        const selectedNumber = container.querySelector('.selected-number');
-                        if (selectedNumber) {
-                            selectedNumber.remove();
-                        }
+                        number.style.visibility = 'hidden';
                         img.style.opacity = '1';
-                        img.style.pointerEvents = 'auto';
 
-                        // Actualizar los números de selección
+                        // Update numbers for remaining selections
                         const selectedNumbers = wordOptionsContainer.querySelectorAll('.selected-number');
                         selectedNumbers.forEach((num, idx) => {
                             num.textContent = idx + 1;
@@ -115,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             container.appendChild(img);
+            container.appendChild(number);
             wordOptionsContainer.appendChild(container);
         });
     }
@@ -175,4 +189,178 @@ document.getElementById('convertButton').addEventListener('click', () => {
             }
         }
     };
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const exerciseOptions = document.getElementById('exercise-options');
+    const checkAnswerButton = document.getElementById('check-answer');
+    const feedback = document.getElementById('exercise-feedback');
+    const questionLetter = document.getElementById('random-letter');
+
+    let selectedOption = null;
+
+    // Add click event to dynamically generated options
+    exerciseOptions.addEventListener('click', (event) => {
+        if (event.target.tagName === 'IMG') {
+            // Remove selection from previous option
+            if (selectedOption) {
+                selectedOption.classList.remove('ring-4', 'ring-indigo-500');
+            }
+
+            // Highlight the selected option
+            selectedOption = event.target;
+            selectedOption.classList.add('ring-4', 'ring-indigo-500');
+        }
+    });
+
+    // Check answer logic
+    checkAnswerButton.addEventListener('click', () => {
+        if (!selectedOption) {
+            feedback.textContent = 'Por favor selecciona una imagen antes de verificar.';
+            feedback.style.color = 'red';
+            return;
+        }
+
+        const selectedLetter = selectedOption.alt;
+        if (selectedLetter === questionLetter.textContent) {
+            feedback.textContent = '¡Correcto!';
+            feedback.style.color = 'green';
+        } else {
+            feedback.textContent = `Incorrecto. La letra correcta es: ${questionLetter.textContent}`;
+            feedback.style.color = 'red';
+        }
+    });
+});
+
+// Ejercicio: Ordena las Palabras
+const phrases = [
+    'hola mundo',
+    'buenos dias',
+    'gracias amigo',
+    'familia feliz',
+    'trabajo en equipo'
+];
+const randomPhraseElement = document.getElementById('random-phrase');
+const wordOrderOptionsContainer = document.getElementById('word-order-options');
+const wordOrderFeedbackElement = document.getElementById('word-order-feedback');
+const checkWordOrderAnswerButton = document.getElementById('check-word-order-answer');
+
+let correctPhrase = '';
+let selectedWords = [];
+
+function generateWordOrderExercise() {
+    correctPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+    randomPhraseElement.textContent = correctPhrase.toUpperCase();
+
+    const shuffledWords = correctPhrase.split(' ').sort(() => 0.5 - Math.random());
+
+    wordOrderOptionsContainer.innerHTML = '';
+    selectedWords = [];
+
+    shuffledWords.forEach((word) => {
+        const button = document.createElement('button');
+        button.textContent = word;
+        button.classList.add('bg-gray-200', 'rounded', 'px-4', 'py-2', 'm-2', 'hover:bg-gray-300');
+        button.addEventListener('click', () => {
+            if (!selectedWords.includes(word)) {
+                selectedWords.push(word);
+                button.style.opacity = '0.5';
+                button.style.pointerEvents = 'none';
+            }
+        });
+        wordOrderOptionsContainer.appendChild(button);
+    });
+}
+
+checkWordOrderAnswerButton.addEventListener('click', () => {
+    if (selectedWords.join(' ') === correctPhrase) {
+        wordOrderFeedbackElement.textContent = '¡Correcto! Reiniciando ejercicio...';
+        wordOrderFeedbackElement.style.color = 'green';
+        setTimeout(() => {
+            wordOrderFeedbackElement.textContent = '';
+            generateWordOrderExercise();
+        }, 2000);
+    } else {
+        wordOrderFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo.';
+        wordOrderFeedbackElement.style.color = 'red';
+    }
+});
+
+generateWordOrderExercise();
+
+// Ejercicio: Encuentra la Letra
+const findRandomLetterElement = document.getElementById('find-random-letter');
+const findLetterOptionsContainer = document.getElementById('find-letter-options');
+const findLetterFeedbackElement = document.getElementById('find-letter-feedback');
+const checkFindLetterAnswerButton = document.getElementById('check-find-letter-answer');
+
+let findCorrectLetter = '';
+
+function generateFindLetterExercise() {
+    findCorrectLetter = letters[Math.floor(Math.random() * letters.length)];
+    findRandomLetterElement.textContent = findCorrectLetter.toUpperCase();
+
+    const shuffledLetters = [...letters].sort(() => 0.5 - Math.random()).slice(0, 6);
+    if (!shuffledLetters.includes(findCorrectLetter)) {
+        shuffledLetters[Math.floor(Math.random() * 6)] = findCorrectLetter;
+    }
+
+    findLetterOptionsContainer.innerHTML = '';
+
+    shuffledLetters.forEach((letter) => {
+        const img = document.createElement('img');
+        img.src = `signs/${letter}.png`;
+        img.alt = letter;
+        img.dataset.letter = letter;
+        img.classList.add('exercise-option', 'border', 'border-gray-300', 'rounded-lg', 'p-2');
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => {
+            document.querySelectorAll('.exercise-option').forEach(option => {
+                option.classList.remove('ring-4', 'ring-indigo-500');
+            });
+            img.classList.add('ring-4', 'ring-indigo-500');
+        });
+        findLetterOptionsContainer.appendChild(img);
+    });
+}
+
+checkFindLetterAnswerButton.addEventListener('click', () => {
+    const selectedOption = document.querySelector('.exercise-option.ring-4');
+    if (!selectedOption) {
+        findLetterFeedbackElement.textContent = 'Por favor, selecciona una opción.';
+        findLetterFeedbackElement.style.color = 'red';
+        return;
+    }
+
+    if (selectedOption.dataset.letter === findCorrectLetter) {
+        findLetterFeedbackElement.textContent = '¡Correcto! Reiniciando ejercicio...';
+        findLetterFeedbackElement.style.color = 'green';
+        setTimeout(() => {
+            findLetterFeedbackElement.textContent = '';
+            generateFindLetterExercise();
+        }, 2000);
+    } else {
+        findLetterFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo.';
+        findLetterFeedbackElement.style.color = 'red';
+    }
+});
+
+generateFindLetterExercise();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const openMenuButton = document.getElementById('open-menu');
+    const closeMenuButton = document.getElementById('close-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (openMenuButton && closeMenuButton && mobileMenu) {
+        openMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    } else {
+        console.error('No se encontraron los elementos necesarios para el menú móvil.');
+    }
 });
