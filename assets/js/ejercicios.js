@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = document.createElement('div');
             container.className = 'relative group cursor-pointer';
             
-            const img = createOptionImage(`signs/${letter}.png`, letter, 'fade-in');
+            const img = createOptionImage(`/signs/${letter}.png`, letter, 'fade-in');
             addFadeInAnimation(img, index * 0.1);
             
             img.dataset.letter = letter;
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = document.createElement('div');
             container.className = 'relative group';
 
-            const img = createOptionImage(`signs/${letter}.png`, letter, 'fade-in');
+            const img = createOptionImage(`/signs/${letter}.png`, letter, 'fade-in');
             addFadeInAnimation(img, index * 0.1);
 
             const numberBadge = document.createElement('div');
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateSignRecognition() {
         correctSignLetter = letters[Math.floor(Math.random() * letters.length)];
-        randomSignElement.src = `signs/${correctSignLetter}.png`;
+        randomSignElement.src = `/signs/${correctSignLetter}.png`;
         randomSignElement.alt = correctSignLetter;
         addFadeInAnimation(randomSignElement);
 
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = document.createElement('div');
             container.className = 'relative group cursor-pointer';
             
-            const img = createOptionImage(`signs/${letter}.png`, letter, 'fade-in');
+            const img = createOptionImage(`/signs/${letter}.png`, letter, 'fade-in');
             addFadeInAnimation(img, index * 0.1);
             
             img.dataset.letter = letter;

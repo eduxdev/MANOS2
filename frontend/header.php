@@ -12,7 +12,7 @@
         <div class="flex lg:flex-1">
           <a href="inicio.php" class="-m-1.5 p-1.5">
             <span class="sr-only">Talk Hands</span>
-            <img class="h-12 w-auto rounded-lg transition-all duration-300" id="logo-img" src="./imagenes/logo2.png" alt="Logo">
+            <img class="h-12 w-auto rounded-lg transition-all duration-300" id="logo-img" src="/imagenes/logo2.png" alt="Logo">
           </a>
         </div>
         <div class="flex lg:hidden">
@@ -24,12 +24,10 @@
           </button>
         </div>
         <div class="hidden lg:flex lg:gap-x-12">
-          <a href="inicio.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Inicio</a>
-          <a href="index.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir</a>
-          <a href="traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir Palabras</a>
-          <a href="reconocer_senas.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Reconocer Señas</a>
-          <a href="aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Aprender</a>
-          <a href="sobre_nosotros.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Sobre Nosotros</a>
+          <a href="/frontend/inicio.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Inicio</a>
+          <a href="/frontend/traducir.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir</a>
+          <a href="/frontend/traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir Palabras</a>
+          <a href="/frontend/aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Aprender</a>
         </div>
       </nav>
     </header>
@@ -39,7 +37,7 @@
       <div class="flex items-center justify-between p-6">
         <a href="#" class="-m-1.5 p-1.5">
           <span class="sr-only">Talk Hands</span>
-          <img class="h-8 w-auto" src="./imagenes/logo1.png" alt="Logo">
+          <img class="h-8 w-auto" src="/imagenes/logo1.png" alt="Logo">
         </a>
         <button id="close-menu" type="button" class="rounded-md p-2.5 text-pink-300 hover:text-pink-400">
           <span class="sr-only">Cerrar menú</span>
@@ -51,12 +49,10 @@
       <div class="mt-6 flow-root px-6">
         <div class="-my-6 divide-y divide-pink-300/10">
           <div class="space-y-2 py-6">
-            <a href="inicio.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Inicio</a>
-            <a href="index.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir</a>
-            <a href="traducir_palabras.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir Palabras</a>
-            <a href="reconocer_senas.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Reconocer Señas</a>
-            <a href="aprender.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Aprender</a>
-            <a href="sobre_nosotros.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Sobre Nosotros</a>
+            <a href="/frontend/inicio.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Inicio</a>
+            <a href="/frontend/traducir.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir</a>
+            <a href="/frontend/traducir_palabras.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir Palabras</a>
+            <a href="/frontend/aprender.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Aprender</a>
           </div>
         </div>
       </div>

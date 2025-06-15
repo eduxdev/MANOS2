@@ -12,7 +12,7 @@
             <div class="flex flex-col items-center gap-y-4">
                 <!-- Logo y título -->
                 <div class="flex flex-col items-center text-center">
-                    <img class="h-10 w-auto rounded-lg mb-2" src="./imagenes/logo2.png" alt="Logo">
+                    <img class="h-10 w-auto rounded-lg mb-2" src="/imagenes/logo2.png" alt="Logo">
                     <h2 class="text-2xl font-bold bg-gradient-to-r from-pink-300 to-purple-300 bg-clip-text text-transparent">
                         Talk Hands
                     </h2>
@@ -21,20 +21,17 @@
 
                 <!-- Enlaces de navegación -->
                 <nav class="flex justify-center gap-x-8 mt-4">
-                    <a href="inicio.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
+                    <a href="/frontend/inicio.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
                         Inicio
                     </a>
-                    <a href="index.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
+                    <a href="/frontend/traducir.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
                         Traducción
                     </a>
-                    <a href="traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
+                    <a href="/frontend/traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
                         Traducir Palabras
                     </a>
-                    <a href="aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
+                    <a href="/frontend/aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
                         Aprender
-                    </a>
-                    <a href="sobre_nosotros.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition-colors duration-300">
-                        Sobre Nosotros
                     </a>
                 </nav>
 

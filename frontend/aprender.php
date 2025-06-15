@@ -59,7 +59,7 @@
                     foreach ($letters as $letter) {
                         echo "<div class='letter-card group'>";
                         echo "<div class='relative overflow-hidden rounded-lg'>";
-                        echo "<img class='w-full h-24 object-contain transition-transform group-hover:scale-110' src='signs/$letter.png' alt='$letter'>";
+                        echo "<img class='w-full h-24 object-contain transition-transform group-hover:scale-110' src='/signs/$letter.png' alt='$letter'>";
                         echo "</div>";
                         echo "<p class='text-center text-gray-800 font-semibold mt-3 text-lg uppercase'>{$letter}</p>";
                         echo "</div>";
