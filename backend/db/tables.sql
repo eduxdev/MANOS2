@@ -28,7 +28,7 @@ CREATE TABLE usuarios (
 
 -- Tabla de categorías de ejercicios
 CREATE TABLE categorias_ejercicios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -43,13 +43,13 @@ INSERT INTO categorias_ejercicios (nombre, descripcion) VALUES
 
 -- Tabla de ejercicios
 CREATE TABLE ejercicios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(200) NOT NULL,
     descripcion TEXT,
     categoria_id INT NOT NULL,
-    nivel INT DEFAULT 1,
-    puntos_maximos INT DEFAULT 100,
-    tiempo_limite INT, -- en segundos, NULL si no hay límite
+    nivel INT NOT NULL DEFAULT 1,
+    puntos_maximos INT NOT NULL DEFAULT 10,
+    tiempo_limite INT NOT NULL DEFAULT 60,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (categoria_id) REFERENCES categorias_ejercicios(id)
 );
@@ -69,32 +69,53 @@ CREATE TABLE progreso_estudiantes (
     FOREIGN KEY (ejercicio_id) REFERENCES ejercicios(id)
 );
 
--- Tabla de asignaciones (corregida)
+-- Tabla de asignaciones
 CREATE TABLE asignaciones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     profesor_id INT NOT NULL,
     ejercicio_id INT NOT NULL,
-    grupo_asignado VARCHAR(50),
-    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_limite TIMESTAMP NULL DEFAULT NULL,
-    estado VARCHAR(20) DEFAULT 'activa', -- activa, completada, vencida
+    grupo_asignado VARCHAR(10) NOT NULL,
+    fecha_asignacion DATE NOT NULL,
+    fecha_limite DATE NOT NULL,
+    estado ENUM('activa', 'completada', 'vencida') NOT NULL DEFAULT 'activa',
+    puntos_maximos INT NOT NULL,
+    intentos_maximos INT NOT NULL DEFAULT 3,
+    instrucciones TEXT,
+    tipo_ejercicio VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (profesor_id) REFERENCES usuarios(id),
     FOREIGN KEY (ejercicio_id) REFERENCES ejercicios(id)
 );
 
-
--- Tabla de estudiantes_asignaciones (para manejar las asignaciones individuales)
+-- Tabla de asignaciones de estudiantes
 CREATE TABLE estudiantes_asignaciones (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     asignacion_id INT NOT NULL,
     estudiante_id INT NOT NULL,
-    estado VARCHAR(20) DEFAULT 'pendiente', -- pendiente, completada, vencida
-    calificacion INT,
-    fecha_completado TIMESTAMP,
+    estado ENUM('pendiente', 'en_progreso', 'completado') NOT NULL DEFAULT 'pendiente',
+    intentos_realizados INT NOT NULL DEFAULT 0,
+    puntos_obtenidos INT NOT NULL DEFAULT 0,
+    fecha_ultimo_intento DATETIME,
+    evidencia_path VARCHAR(255),
+    fecha_entrega DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (asignacion_id) REFERENCES asignaciones(id),
     FOREIGN KEY (estudiante_id) REFERENCES usuarios(id)
+);
+
+-- Tabla de resultados de ejercicios
+CREATE TABLE resultados_ejercicios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    estudiante_asignacion_id INT NOT NULL,
+    intento_numero INT NOT NULL,
+    tipo_ejercicio VARCHAR(100) NOT NULL,
+    detalles JSON NOT NULL, -- Almacena detalles específicos del ejercicio (letras correctas, errores, etc.)
+    evidencia_path VARCHAR(255) NOT NULL,
+    puntos_obtenidos INT NOT NULL,
+    tiempo_empleado INT NOT NULL, -- en segundos
+    fecha_realizacion DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (estudiante_asignacion_id) REFERENCES estudiantes_asignaciones(id)
 );
 
 -- Tabla de insignias

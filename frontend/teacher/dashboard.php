@@ -20,20 +20,20 @@ $query_grupos = "SELECT DISTINCT grupo
 $result_grupos = mysqli_query($conexion, $query_grupos);
 
 // Obtener estadísticas generales
-$query_stats = "SELECT 
+$query_general_stats = "SELECT 
     COUNT(DISTINCT u.id) as total_estudiantes,
     COUNT(DISTINCT a.id) as total_asignaciones,
-    COUNT(DISTINCT CASE WHEN ea.estado = 'completada' THEN ea.id END) as asignaciones_completadas
+    COUNT(DISTINCT CASE WHEN ea.estado = 'completado' THEN ea.id END) as asignaciones_completadas,
+    SUM(ea.puntos_obtenidos) as total_puntos
 FROM usuarios u
 LEFT JOIN estudiantes_asignaciones ea ON u.id = ea.estudiante_id
-LEFT JOIN asignaciones a ON ea.asignacion_id = a.id
-WHERE u.rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')
-AND (a.profesor_id = ? OR a.profesor_id IS NULL)";
+LEFT JOIN asignaciones a ON ea.asignacion_id = a.id AND a.profesor_id = ?
+WHERE u.rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')";
 
-$stmt = mysqli_prepare($conexion, $query_stats);
+$stmt = mysqli_prepare($conexion, $query_general_stats);
 mysqli_stmt_bind_param($stmt, "i", $profesor_id);
 mysqli_stmt_execute($stmt);
-$stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$general_stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
 // Obtener últimas asignaciones
 $query_asignaciones = "SELECT 
@@ -55,6 +55,42 @@ $stmt = mysqli_prepare($conexion, $query_asignaciones);
 mysqli_stmt_bind_param($stmt, "i", $profesor_id);
 mysqli_stmt_execute($stmt);
 $asignaciones = mysqli_stmt_get_result($stmt);
+
+// Obtener estadísticas detalladas de asignaciones
+$query_assignment_stats = "SELECT 
+    COUNT(*) as total_asignaciones,
+    SUM(CASE WHEN ea.estado = 'completado' THEN 1 ELSE 0 END) as completadas,
+    SUM(CASE WHEN ea.estado = 'pendiente' AND a.fecha_limite < CURDATE() THEN 1 ELSE 0 END) as vencidas,
+    SUM(ea.puntos_obtenidos) as total_puntos
+FROM asignaciones a
+JOIN estudiantes_asignaciones ea ON a.id = ea.asignacion_id
+WHERE a.profesor_id = ?";
+
+$stmt = mysqli_prepare($conexion, $query_assignment_stats);
+mysqli_stmt_bind_param($stmt, "i", $profesor_id);
+mysqli_stmt_execute($stmt);
+$assignment_stats = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+
+// Obtener últimas entregas
+$query_entregas = "SELECT 
+    u.nombre,
+    u.apellidos,
+    e.titulo as ejercicio,
+    ea.fecha_entrega,
+    ea.puntos_obtenidos,
+    ea.evidencia_path
+FROM estudiantes_asignaciones ea
+JOIN asignaciones a ON ea.asignacion_id = a.id
+JOIN usuarios u ON ea.estudiante_id = u.id
+JOIN ejercicios e ON a.ejercicio_id = e.id
+WHERE a.profesor_id = ? AND ea.estado = 'completado'
+ORDER BY ea.fecha_entrega DESC
+LIMIT 10";
+
+$stmt = mysqli_prepare($conexion, $query_entregas);
+mysqli_stmt_bind_param($stmt, "i", $profesor_id);
+mysqli_stmt_execute($stmt);
+$entregas = mysqli_stmt_get_result($stmt);
 ?>
 
 <!DOCTYPE html>
@@ -104,7 +140,7 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                         </div>
                     </div>
                     <div class="text-3xl font-bold text-purple-600 mb-2">
-                        <?php echo $stats['total_estudiantes']; ?>
+                        <?php echo $general_stats['total_estudiantes']; ?>
                     </div>
                     <p class="text-gray-600">Estudiantes activos</p>
                 </div>
@@ -120,7 +156,7 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                         </div>
                     </div>
                     <div class="text-3xl font-bold text-pink-600 mb-2">
-                        <?php echo $stats['total_asignaciones']; ?>
+                        <?php echo $general_stats['total_asignaciones']; ?>
                     </div>
                     <p class="text-gray-600">Total de asignaciones</p>
                 </div>
@@ -137,14 +173,104 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                     </div>
                     <div class="text-3xl font-bold text-green-600 mb-2">
                         <?php 
-                        $tasa_completado = $stats['total_asignaciones'] > 0 
-                            ? round(($stats['asignaciones_completadas'] / $stats['total_asignaciones']) * 100) 
+                        $tasa_completado = $general_stats['total_asignaciones'] > 0 
+                            ? round(($general_stats['asignaciones_completadas'] / $general_stats['total_asignaciones']) * 100) 
                             : 0;
                         echo $tasa_completado . '%';
                         ?>
                     </div>
                     <p class="text-gray-600">Promedio de completado</p>
                 </div>
+            </div>
+
+            <!-- Estadísticas detalladas -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Asignaciones</h3>
+                    <p class="text-3xl font-bold text-purple-600"><?php echo $assignment_stats['total_asignaciones']; ?></p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Completadas</h3>
+                    <p class="text-3xl font-bold text-green-600"><?php echo $assignment_stats['completadas']; ?></p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Vencidas</h3>
+                    <p class="text-3xl font-bold text-red-600"><?php echo $assignment_stats['vencidas']; ?></p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos Otorgados</h3>
+                    <p class="text-3xl font-bold text-blue-600"><?php echo $assignment_stats['total_puntos']; ?></p>
+                </div>
+            </div>
+
+            <!-- Últimas entregas -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Últimas Entregas</h2>
+                
+                <?php if (mysqli_num_rows($entregas) > 0): ?>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Estudiante
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Ejercicio
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha de Entrega
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Puntos
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Evidencia
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <?php while ($entrega = mysqli_fetch_assoc($entregas)): ?>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                <?php echo htmlspecialchars($entrega['nombre'] . ' ' . $entrega['apellidos']); ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                <?php echo htmlspecialchars($entrega['ejercicio']); ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                <?php echo date('d/m/Y H:i', strtotime($entrega['fecha_entrega'])); ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                <?php echo $entrega['puntos_obtenidos']; ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <?php if ($entrega['evidencia_path']): ?>
+                                                <a href="/<?php echo htmlspecialchars($entrega['evidencia_path']); ?>" 
+                                                   target="_blank"
+                                                   class="text-purple-600 hover:text-purple-900">
+                                                    Ver evidencia
+                                                </a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center text-gray-500 py-8">
+                        <p>No hay entregas recientes.</p>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- Últimas asignaciones -->

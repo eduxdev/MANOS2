@@ -1,3 +1,22 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Función auxiliar para obtener la ruta del dashboard según el rol
+function getDashboardPath($rol) {
+    switch($rol) {
+        case 'estudiante':
+            return '/frontend/student/dashboard.php';
+        case 'profesor':
+            return '/frontend/teacher/dashboard.php';
+        case 'administrador':
+            return '/frontend/admin/dashboard.php';
+        default:
+            return '/frontend/inicio.php';
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,7 +29,7 @@
     <header id="header" class="fixed w-full inset-x-0 top-0 z-50 transition-all duration-300">
       <nav class="flex items-center justify-between p-6 lg:px-8 transition-all duration-300" id="nav-container" aria-label="Global">
         <div class="flex lg:flex-1">
-          <a href="inicio.php" class="-m-1.5 p-1.5">
+          <a href="/frontend/inicio.php" class="-m-1.5 p-1.5">
             <span class="sr-only">Talk Hands</span>
             <img class="h-12 w-auto rounded-lg transition-all duration-300" id="logo-img" src="/imagenes/logo2.png" alt="Logo">
           </a>
@@ -28,6 +47,30 @@
           <a href="/frontend/traducir.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir</a>
           <a href="/frontend/traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir Palabras</a>
           <a href="/frontend/aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Aprender</a>
+        </div>
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+          <?php if(isset($_SESSION['user_id'])): ?>
+            <!-- Si el usuario está logueado -->
+            <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
+               class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">
+              Dashboard
+            </a>
+            <div class="flex items-center gap-x-2">
+              <span class="text-sm font-medium text-pink-300">
+                <?php echo htmlspecialchars($_SESSION['nombre']); ?>
+              </span>
+              <a href="/backend/auth/logout.php" 
+                 class="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 transition-all duration-300">
+                Cerrar Sesión
+              </a>
+            </div>
+          <?php else: ?>
+            <!-- Si el usuario no está logueado -->
+            <a href="/frontend/auth/login.php" 
+               class="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 transition-all duration-300">
+              Iniciar Sesión
+            </a>
+          <?php endif; ?>
         </div>
       </nav>
     </header>
@@ -53,6 +96,26 @@
             <a href="/frontend/traducir.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir</a>
             <a href="/frontend/traducir_palabras.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir Palabras</a>
             <a href="/frontend/aprender.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Aprender</a>
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
+                 class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">
+                Dashboard
+              </a>
+              <div class="pt-4">
+                <span class="block px-3 py-2 text-base font-medium text-pink-300">
+                  <?php echo htmlspecialchars($_SESSION['nombre']); ?>
+                </span>
+                <a href="/backend/auth/logout.php" 
+                   class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">
+                  Cerrar Sesión
+                </a>
+              </div>
+            <?php else: ?>
+              <a href="/frontend/auth/login.php" 
+                 class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">
+                Iniciar Sesión
+              </a>
+            <?php endif; ?>
           </div>
         </div>
       </div>

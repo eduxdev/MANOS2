@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validaciones básicas
     if (empty($nombre) || empty($apellidos) || empty($email) || empty($password) || empty($rol)) {
         $_SESSION['error'] = "Por favor, completa todos los campos obligatorios.";
-        header("Location: ../../frontend/auth/register.php");
+        header("Location: /frontend/auth/register.php");
         exit();
     }
 
     if ($password !== $confirm_password) {
         $_SESSION['error'] = "Las contraseñas no coinciden.";
-        header("Location: ../../frontend/auth/register.php");
+        header("Location: /frontend/auth/register.php");
         exit();
     }
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (mysqli_num_rows($result) > 0) {
         $_SESSION['error'] = "Ya existe una cuenta con ese correo electrónico.";
-        header("Location: ../../frontend/auth/register.php");
+        header("Location: /frontend/auth/register.php");
         exit();
     }
 
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$rol_data) {
         $_SESSION['error'] = "Rol no válido.";
-        header("Location: ../../frontend/auth/register.php");
+        header("Location: /frontend/auth/register.php");
         exit();
     }
 
@@ -73,11 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ejecutar la inserción
     if (mysqli_stmt_execute($stmt)) {
         $_SESSION['success'] = "Cuenta creada exitosamente. Por favor, inicia sesión.";
-        header("Location: ../../frontend/auth/login.php");
+        header("Location: /frontend/auth/login.php");
         exit();
     } else {
         $_SESSION['error'] = "Error al crear la cuenta. Por favor, intenta nuevamente.";
-        header("Location: ../../frontend/auth/register.php");
+        header("Location: /frontend/auth/register.php");
         exit();
     }
 }

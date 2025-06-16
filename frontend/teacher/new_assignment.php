@@ -9,9 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'profesor') {
 }
 
 // Obtener lista de ejercicios disponibles
-$query_ejercicios = "SELECT id, titulo, descripcion, nivel_dificultad 
-                    FROM ejercicios 
-                    ORDER BY nivel_dificultad, titulo";
+$query_ejercicios = "SELECT e.id, e.titulo, e.descripcion, e.nivel, e.puntos_maximos as puntos_sugeridos, 
+                            e.tiempo_limite as tiempo_sugerido, c.nombre as categoria 
+                     FROM ejercicios e 
+                     JOIN categorias_ejercicios c ON e.categoria_id = c.id 
+                     ORDER BY c.nombre, e.nivel, e.titulo";
 $ejercicios = mysqli_query($conexion, $query_ejercicios);
 
 // Obtener lista de grupos
@@ -55,12 +57,29 @@ $grupos = mysqli_query($conexion, $query_grupos);
                         <select id="ejercicio" name="ejercicio_id" required
                             class="mt-1 block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 rounded-md">
                             <option value="">Selecciona un ejercicio</option>
-                            <?php while ($ejercicio = mysqli_fetch_assoc($ejercicios)): ?>
-                                <option value="<?php echo $ejercicio['id']; ?>">
+                            <?php 
+                            $current_category = '';
+                            while ($ejercicio = mysqli_fetch_assoc($ejercicios)): 
+                                if ($current_category != $ejercicio['categoria']) {
+                                    if ($current_category != '') {
+                                        echo '</optgroup>';
+                                    }
+                                    $current_category = $ejercicio['categoria'];
+                                    echo '<optgroup label="' . htmlspecialchars($ejercicio['categoria']) . '">';
+                                }
+                            ?>
+                                <option value="<?php echo $ejercicio['id']; ?>" 
+                                        data-puntos="<?php echo $ejercicio['puntos_sugeridos']; ?>"
+                                        data-tiempo="<?php echo $ejercicio['tiempo_sugerido']; ?>">
                                     <?php echo htmlspecialchars($ejercicio['titulo']); ?> 
-                                    (Dificultad: <?php echo htmlspecialchars($ejercicio['nivel_dificultad']); ?>)
+                                    (Nivel: <?php echo htmlspecialchars($ejercicio['nivel']); ?>)
                                 </option>
-                            <?php endwhile; ?>
+                            <?php 
+                            endwhile;
+                            if ($current_category != '') {
+                                echo '</optgroup>';
+                            }
+                            ?>
                         </select>
                     </div>
 
@@ -69,6 +88,16 @@ $grupos = mysqli_query($conexion, $query_grupos);
                         <div class="bg-purple-50 rounded-lg p-4">
                             <h4 class="font-medium text-purple-900 mb-2">Descripción del ejercicio</h4>
                             <p class="text-sm text-purple-700" id="descripcion_texto"></p>
+                            <div class="mt-3 grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="font-medium text-purple-900">Puntos sugeridos:</span>
+                                    <span id="puntos_sugeridos" class="text-purple-700"></span>
+                                </div>
+                                <div>
+                                    <span class="font-medium text-purple-900">Tiempo sugerido:</span>
+                                    <span id="tiempo_sugerido" class="text-purple-700"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -168,7 +197,9 @@ $grupos = mysqli_query($conexion, $query_grupos);
             while ($ejercicio = mysqli_fetch_assoc($ejercicios)) {
                 $ejercicios_data[$ejercicio['id']] = [
                     'titulo' => $ejercicio['titulo'],
-                    'descripcion' => $ejercicio['descripcion']
+                    'descripcion' => $ejercicio['descripcion'],
+                    'puntos_sugeridos' => $ejercicio['puntos_sugeridos'],
+                    'tiempo_sugerido' => $ejercicio['tiempo_sugerido']
                 ];
             }
             echo json_encode($ejercicios_data);
@@ -177,9 +208,16 @@ $grupos = mysqli_query($conexion, $query_grupos);
         document.getElementById('ejercicio').addEventListener('change', function() {
             const descripcionDiv = document.getElementById('descripcion_ejercicio');
             const descripcionTexto = document.getElementById('descripcion_texto');
+            const puntosSugeridos = document.getElementById('puntos_sugeridos');
+            const tiempoSugerido = document.getElementById('tiempo_sugerido');
+            const puntosInput = document.getElementById('puntos');
             
             if (this.value && ejercicios[this.value]) {
-                descripcionTexto.textContent = ejercicios[this.value].descripcion;
+                const ejercicio = ejercicios[this.value];
+                descripcionTexto.textContent = ejercicio.descripcion;
+                puntosSugeridos.textContent = ejercicio.puntos_sugeridos + ' puntos';
+                tiempoSugerido.textContent = ejercicio.tiempo_sugerido + ' segundos';
+                puntosInput.value = ejercicio.puntos_sugeridos;
                 descripcionDiv.classList.remove('hidden');
             } else {
                 descripcionDiv.classList.add('hidden');
@@ -199,24 +237,12 @@ $grupos = mysqli_query($conexion, $query_grupos);
                 return;
             }
 
-            if (fechaLimite <= fechaInicio) {
+            if (fechaLimite < fechaInicio) {
                 e.preventDefault();
-                alert('La fecha límite debe ser posterior a la fecha de inicio');
-                return;
-            }
-
-            const grupos = document.querySelectorAll('input[name="grupos[]"]:checked');
-            if (grupos.length === 0) {
-                e.preventDefault();
-                alert('Debes seleccionar al menos un grupo');
+                alert('La fecha límite no puede ser anterior a la fecha de inicio');
                 return;
             }
         });
-
-        // Establecer fecha mínima en los inputs de fecha
-        const fechaHoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha_inicio').min = fechaHoy;
-        document.getElementById('fecha_limite').min = fechaHoy;
     </script>
 </body>
 </html> 

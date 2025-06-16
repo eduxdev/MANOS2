@@ -11,16 +11,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
 // Obtener datos del estudiante
 $user_id = $_SESSION['user_id'];
 
-// Obtener progreso general
+// Obtener progreso general actualizado
 $query_progreso = "SELECT 
-    COUNT(DISTINCT e.id) as total_ejercicios,
-    COUNT(DISTINCT CASE WHEN pe.completado = 1 THEN e.id END) as ejercicios_completados,
-    SUM(pe.puntos_obtenidos) as puntos_totales
-FROM ejercicios e
-LEFT JOIN progreso_estudiantes pe ON e.id = pe.ejercicio_id AND pe.usuario_id = ?";
+    (SELECT COUNT(*) FROM ejercicios) as total_ejercicios,
+    (SELECT COUNT(DISTINCT ea.asignacion_id) 
+     FROM estudiantes_asignaciones ea 
+     JOIN asignaciones a ON ea.asignacion_id = a.id 
+     WHERE ea.estudiante_id = ? AND ea.estado = 'completado') as ejercicios_completados,
+    COALESCE(SUM(ea.puntos_obtenidos), 0) as puntos_totales,
+    (SELECT COUNT(*) 
+     FROM estudiantes_asignaciones ea2 
+     WHERE ea2.estudiante_id = ? 
+     AND ea2.fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+     AND ea2.estado = 'completado') as ejercicios_ultima_semana
+FROM estudiantes_asignaciones ea
+WHERE ea.estudiante_id = ?";
 
 $stmt = mysqli_prepare($conexion, $query_progreso);
-mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_bind_param($stmt, "iii", $user_id, $user_id, $user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $progreso = mysqli_fetch_assoc($result);
@@ -31,12 +39,14 @@ $query_asignaciones = "SELECT
     e.titulo, 
     e.descripcion,
     a.fecha_limite,
-    ea.estado
+    ea.estado,
+    ea.puntos_obtenidos,
+    ea.evidencia_path
 FROM asignaciones a
 JOIN ejercicios e ON a.ejercicio_id = e.id
 JOIN estudiantes_asignaciones ea ON a.id = ea.asignacion_id
-WHERE ea.estudiante_id = ? AND ea.estado = 'pendiente'
-ORDER BY a.fecha_limite ASC";
+WHERE ea.estudiante_id = ?
+ORDER BY ea.estado = 'pendiente' DESC, a.fecha_limite ASC";
 
 $stmt = mysqli_prepare($conexion, $query_asignaciones);
 mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -71,10 +81,101 @@ $insignias = mysqli_stmt_get_result($stmt);
         .float-animation {
             animation: float 3s ease-in-out infinite;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
     <?php include '../header.php'; ?>
+
+    <!-- Modal de subida de evidencias -->
+    <div id="evidence-modal" class="modal">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 transform transition-all">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800" id="modal-title"></h2>
+                <button class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-gray-600 mb-4" id="modal-description"></p>
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="block text-sm text-gray-500">Fecha límite</span>
+                            <span id="modal-deadline" class="font-medium"></span>
+                        </div>
+                        <div>
+                            <span class="block text-sm text-gray-500">Estado</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Pendiente
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="evidence-form" class="space-y-6">
+                <input type="hidden" id="assignment-id" name="assignment_id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Evidencia de realización
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="evidence-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500">
+                                    <span>Subir archivo</span>
+                                    <input id="evidence-upload" name="evidence" type="file" class="sr-only" accept="image/*,video/*,.pdf">
+                                </label>
+                                <p class="pl-1">o arrastrar y soltar</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, PDF hasta 10MB</p>
+                        </div>
+                    </div>
+                    <div id="file-preview" class="mt-2 hidden">
+                        <div class="flex items-center space-x-2">
+                            <span id="file-name" class="text-sm text-gray-500"></span>
+                            <button type="button" id="remove-file" class="text-red-500 hover:text-red-700">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        Enviar evidencia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <main class="pt-32 pb-24">
         <div class="container mx-auto px-4 max-w-7xl">
@@ -111,6 +212,9 @@ $insignias = mysqli_stmt_get_result($stmt);
                     <p class="text-gray-600">
                         <?php echo $progreso['ejercicios_completados']; ?> de <?php echo $progreso['total_ejercicios']; ?> ejercicios completados
                     </p>
+                    <div class="mt-2 h-2 bg-gray-200 rounded-full">
+                        <div class="h-2 bg-purple-600 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
+                    </div>
                 </div>
 
                 <!-- Puntos totales -->
@@ -124,7 +228,7 @@ $insignias = mysqli_stmt_get_result($stmt);
                         </div>
                     </div>
                     <div class="text-3xl font-bold text-pink-600 mb-2">
-                        <?php echo number_format($progreso['puntos_totales'] ?? 0); ?>
+                        <?php echo number_format($progreso['puntos_totales']); ?>
                     </div>
                     <p class="text-gray-600">Puntos acumulados</p>
                 </div>
@@ -132,15 +236,17 @@ $insignias = mysqli_stmt_get_result($stmt);
                 <!-- Racha actual -->
                 <div class="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:scale-105">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Racha Actual</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">Actividad Semanal</h3>
                         <div class="text-orange-500">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                             </svg>
                         </div>
                     </div>
-                    <div class="text-3xl font-bold text-orange-500 mb-2">7 días</div>
-                    <p class="text-gray-600">¡Sigue así!</p>
+                    <div class="text-3xl font-bold text-orange-500 mb-2">
+                        <?php echo $progreso['ejercicios_ultima_semana']; ?>
+                    </div>
+                    <p class="text-gray-600">Ejercicios esta semana</p>
                 </div>
             </div>
 
@@ -162,13 +268,28 @@ $insignias = mysqli_stmt_get_result($stmt);
                                     <span class="text-sm text-purple-600">
                                         Fecha límite: <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
                                     </span>
-                                    <a href="../exercises/view.php?id=<?php echo $asignacion['id']; ?>" 
-                                       class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors">
-                                        Comenzar
-                                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </a>
+                                    <?php if ($asignacion['estado'] === 'pendiente'): ?>
+                                        <button onclick="openEvidenceModal(<?php echo htmlspecialchars(json_encode($asignacion)); ?>)" 
+                                               class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors">
+                                            Subir evidencia
+                                            <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                        </button>
+                                    <?php else: ?>
+                                        <div class="flex flex-col items-end">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-2">
+                                                Completado - <?php echo $asignacion['puntos_obtenidos']; ?> puntos
+                                            </span>
+                                            <?php if ($asignacion['evidencia_path']): ?>
+                                                <a href="/<?php echo htmlspecialchars($asignacion['evidencia_path']); ?>" 
+                                                   target="_blank"
+                                                   class="text-sm text-purple-600 hover:text-purple-800">
+                                                    Ver evidencia
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endwhile; ?>
@@ -209,5 +330,81 @@ $insignias = mysqli_stmt_get_result($stmt);
     </main>
 
     <?php include '../footer.php'; ?>
+
+    <script>
+        const modal = document.getElementById('evidence-modal');
+        const fileInput = document.getElementById('evidence-upload');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const removeFile = document.getElementById('remove-file');
+        const evidenceForm = document.getElementById('evidence-form');
+        let evidenceFile = null;
+
+        function openEvidenceModal(asignacion) {
+            document.getElementById('modal-title').textContent = asignacion.titulo;
+            document.getElementById('modal-description').textContent = asignacion.descripcion;
+            document.getElementById('modal-deadline').textContent = new Date(asignacion.fecha_limite).toLocaleDateString();
+            document.getElementById('assignment-id').value = asignacion.id;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            modal.classList.remove('show');
+            evidenceFile = null;
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) { // 10MB
+                    alert('El archivo es demasiado grande. Por favor, selecciona un archivo menor a 10MB.');
+                    fileInput.value = '';
+                    return;
+                }
+                evidenceFile = file;
+                fileName.textContent = file.name;
+                filePreview.classList.remove('hidden');
+            }
+        });
+
+        removeFile.addEventListener('click', () => {
+            evidenceFile = null;
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+        });
+
+        evidenceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!evidenceFile) {
+                alert('Por favor, sube una evidencia antes de enviar.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('evidence', evidenceFile);
+            formData.append('assignment_id', document.getElementById('assignment-id').value);
+
+            try {
+                const response = await fetch('/backend/ejercicios/save_evidence.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Evidencia enviada correctamente');
+                    closeModal();
+                    location.reload(); // Recargar para actualizar el estado
+                } else {
+                    alert('Error al enviar la evidencia: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar la evidencia');
+            }
+        });
+    </script>
 </body>
 </html> 

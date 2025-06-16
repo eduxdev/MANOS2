@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Incluir el archivo de conexión
 require_once __DIR__ . '/../db/conection.php';
@@ -11,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($email) || empty($password)) {
         $_SESSION['error'] = "Por favor, complete todos los campos.";
-        header("Location: ../../frontend/auth/login.php");
+        header("Location: /frontend/auth/login.php");
         exit();
     }
 
@@ -69,6 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Si no es una solicitud POST, redirigir al login
-header("Location: frontend/auth/login.php");
+header("Location: /frontend/auth/login.php");
 exit();
 ?> 
