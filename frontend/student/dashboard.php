@@ -336,7 +336,9 @@ $insignias = mysqli_stmt_get_result($stmt);
                                                     'letterIdentification' => 'Identificación de Letras',
                                                     'wordCompletion' => 'Completar Palabras',
                                                     'signRecognition' => 'Reconocimiento de Señas',
-                                                    'errorDetection' => 'Detección de Errores'
+                                                    'errorDetection' => 'Detección de Errores',
+                                                    'sequenceExercise' => 'Secuencia de Señas',
+                                                    'memoryExercise' => 'Memorama de Señas'
                                                 ];
                                                 echo $nombre_tipo[$tipo] ?? $tipo;
                                                 ?>

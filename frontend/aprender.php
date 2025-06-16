@@ -203,8 +203,11 @@
                             <p class="text-sm text-gray-600">Puntos: <span id="sequence-points" class="font-bold">0</span></p>
                         </div>
                     </div>
-                    <div id="sequence-display" class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
-                        <!-- Las señas de la secuencia se mostrarán aquí -->
+                    <!-- Contenedor específico para la secuencia con altura fija -->
+                    <div class="bg-white/50 backdrop-blur-sm rounded-lg p-4 mb-6 min-h-[200px] border border-purple-100">
+                        <div id="sequence-display" class="mb-6">
+                            <!-- Las señas de la secuencia se mostrarán aquí -->
+                        </div>
                     </div>
                     <div id="sequence-input" class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
                         <!-- Área para que el usuario repita la secuencia -->

@@ -27,10 +27,22 @@ $puntos_por_tipo = [
     'letterIdentification' => 1,
     'wordCompletion' => 2,
     'signRecognition' => 1,
-    'errorDetection' => 2
+    'errorDetection' => 2,
+    'sequenceExercise' => 3, // Base points for sequence exercise
+    'memoryExercise' => 2    // Base points for memory exercise
 ];
 
-$puntos_ganados = $respuesta_correcta ? ($puntos_por_tipo[$tipo_ejercicio] ?? 1) : 0;
+$puntos_base = $puntos_por_tipo[$tipo_ejercicio] ?? 1;
+
+// Calcular puntos según el tipo de ejercicio y detalles
+if ($tipo_ejercicio === 'sequenceExercise' && isset($data['detalles']['nivel'])) {
+    $puntos_base *= $data['detalles']['nivel']; // Multiplicar por el nivel alcanzado
+} elseif ($tipo_ejercicio === 'memoryExercise' && isset($data['detalles']['intentos'])) {
+    // Más puntos por menos intentos, mínimo 1 punto
+    $puntos_base = max(1, $puntos_base * (10 - min($data['detalles']['intentos'], 8)));
+}
+
+$puntos_ganados = $respuesta_correcta ? $puntos_base : 0;
 
 try {
     // Iniciar transacción
