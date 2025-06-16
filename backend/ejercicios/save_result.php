@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../db/conection.php';
+require_once 'check_badges.php';
 
 // Verificar si el usuario está logueado y es estudiante
 if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
@@ -64,7 +65,8 @@ mysqli_begin_transaction($conexion);
 
 try {
     // Obtener el número de intento actual
-    $query = "SELECT intentos_realizados FROM estudiantes_asignaciones 
+    $query = "SELECT intentos_realizados, puntos_obtenidos as puntos_anteriores 
+              FROM estudiantes_asignaciones 
               WHERE id = ? AND estudiante_id = ?";
     $stmt = mysqli_prepare($conexion, $query);
     mysqli_stmt_bind_param($stmt, "ii", $data['estudiante_asignacion_id'], $_SESSION['user_id']);
@@ -72,6 +74,10 @@ try {
     $result = mysqli_stmt_get_result($stmt);
     $row = mysqli_fetch_assoc($result);
     $intento_numero = $row['intentos_realizados'] + 1;
+    $puntos_anteriores = $row['puntos_anteriores'];
+
+    // Calcular puntos adicionales (solo si mejoró su puntuación)
+    $puntos_adicionales = max(0, $data['puntos_obtenidos'] - $puntos_anteriores);
 
     // Insertar resultado
     $query = "INSERT INTO resultados_ejercicios 
@@ -104,9 +110,36 @@ try {
     );
     mysqli_stmt_execute($stmt);
 
+    // Actualizar puntos de práctica con los puntos adicionales
+    if ($puntos_adicionales > 0) {
+        $query = "UPDATE usuarios 
+                  SET puntos_practica = COALESCE(puntos_practica, 0) + ? 
+                  WHERE id = ?";
+        $stmt = mysqli_prepare($conexion, $query);
+        mysqli_stmt_bind_param($stmt, "ii", $puntos_adicionales, $_SESSION['user_id']);
+        mysqli_stmt_execute($stmt);
+    }
+
+    // Verificar y otorgar insignias
+    $insignias_otorgadas = checkAndAwardBadges($_SESSION['user_id']);
+
     // Confirmar transacción
     mysqli_commit($conexion);
-    echo json_encode(['success' => true]);
+    
+    // Obtener puntos totales actualizados
+    $query = "SELECT COALESCE(puntos_practica, 0) as puntos_practica FROM usuarios WHERE id = ?";
+    $stmt = mysqli_prepare($conexion, $query);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $puntos_totales = mysqli_fetch_assoc($result)['puntos_practica'];
+
+    echo json_encode([
+        'success' => true,
+        'puntos_ganados' => $puntos_adicionales,
+        'puntos_totales' => $puntos_totales,
+        'insignias_otorgadas' => $insignias_otorgadas
+    ]);
 
 } catch (Exception $e) {
     // Revertir transacción en caso de error

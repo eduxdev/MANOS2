@@ -7,11 +7,13 @@ function checkAndAwardBadges($usuario_id) {
     // Obtener estadísticas del usuario
     $query_stats = "SELECT 
         COUNT(DISTINCT ea.asignacion_id) as total_ejercicios,
-        SUM(ea.puntos_obtenidos) as total_puntos,
+        COALESCE(SUM(ea.puntos_obtenidos), 0) + COALESCE(u.puntos_practica, 0) as total_puntos,
         COUNT(DISTINCT CASE WHEN DATE(ea.fecha_entrega) = CURDATE() THEN ea.id END) as ejercicios_hoy,
         COUNT(DISTINCT DATE(ea.fecha_entrega)) as dias_activos
-    FROM estudiantes_asignaciones ea
-    WHERE ea.estudiante_id = ? AND ea.estado = 'completado'";
+    FROM usuarios u
+    LEFT JOIN estudiantes_asignaciones ea ON ea.estudiante_id = u.id AND ea.estado = 'completado'
+    WHERE u.id = ?
+    GROUP BY u.id";
     
     $stmt = mysqli_prepare($conexion, $query_stats);
     mysqli_stmt_bind_param($stmt, "i", $usuario_id);

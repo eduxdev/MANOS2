@@ -58,16 +58,23 @@ $query_progreso = "SELECT
      JOIN asignaciones a ON ea.asignacion_id = a.id 
      WHERE ea.estudiante_id = ? AND ea.estado = 'completado') as ejercicios_completados,
     COALESCE(SUM(ea.puntos_obtenidos), 0) as puntos_totales,
-    (SELECT COUNT(*) 
-     FROM estudiantes_asignaciones ea2 
-     WHERE ea2.estudiante_id = ? 
-     AND ea2.fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-     AND ea2.estado = 'completado') as ejercicios_ultima_semana
+    (
+        SELECT COUNT(*) + (
+            SELECT COUNT(DISTINCT DATE(p.fecha_practica))
+            FROM practicas_ejercicios p
+            WHERE p.estudiante_id = ?
+            AND p.fecha_practica >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        )
+        FROM estudiantes_asignaciones ea2 
+        WHERE ea2.estudiante_id = ? 
+        AND ea2.fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        AND ea2.estado = 'completado'
+    ) as ejercicios_ultima_semana
 FROM estudiantes_asignaciones ea
 WHERE ea.estudiante_id = ?";
 
 $stmt = mysqli_prepare($conexion, $query_progreso);
-mysqli_stmt_bind_param($stmt, "iii", $user_id, $user_id, $user_id);
+mysqli_stmt_bind_param($stmt, "iiii", $user_id, $user_id, $user_id, $user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $progreso = mysqli_fetch_assoc($result);
@@ -310,10 +317,100 @@ $insignias = mysqli_stmt_get_result($stmt);
                             </svg>
                         </div>
                     </div>
+                    <?php
+                    // Consulta para ejercicios asignados de la semana
+                    $query_asignaciones_semana = "SELECT COUNT(*) as total 
+                        FROM estudiantes_asignaciones 
+                        WHERE estudiante_id = ? 
+                        AND fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                        AND estado = 'completado'";
+                    $stmt = mysqli_prepare($conexion, $query_asignaciones_semana);
+                    mysqli_stmt_bind_param($stmt, "i", $user_id);
+                    mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_get_result($stmt);
+                    $asignaciones_semana = mysqli_fetch_assoc($result)['total'];
+
+                    // Consulta para días con prácticas libres
+                    $query_practicas_semana = "SELECT COUNT(DISTINCT DATE(fecha_practica)) as dias_practica,
+                        COUNT(*) as total_practicas,
+                        SUM(CASE WHEN respuesta_correcta = 1 THEN 1 ELSE 0 END) as practicas_correctas
+                        FROM practicas_ejercicios 
+                        WHERE estudiante_id = ? 
+                        AND fecha_practica >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                    $stmt = mysqli_prepare($conexion, $query_practicas_semana);
+                    mysqli_stmt_bind_param($stmt, "i", $user_id);
+                    mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_get_result($stmt);
+                    $practicas_data = mysqli_fetch_assoc($result);
+                    $dias_practica = $practicas_data['dias_practica'];
+                    $total_practicas = $practicas_data['total_practicas'];
+                    $practicas_correctas = $practicas_data['practicas_correctas'];
+
+                    // Calcular el total de actividades
+                    $total_actividades = $asignaciones_semana + $total_practicas;
+                    ?>
                     <div class="text-3xl font-bold text-orange-500 mb-2">
-                        <?php echo $progreso['ejercicios_ultima_semana']; ?>
+                        <?php echo $total_actividades; ?>
                     </div>
-                    <p class="text-gray-600">Ejercicios esta semana</p>
+                    <p class="text-gray-600 mb-2">Actividades esta semana</p>
+                    
+                    <!-- Desglose de actividades -->
+                    <div class="mt-4 space-y-3">
+                        <!-- Ejercicios asignados -->
+                        <div class="bg-orange-50 rounded-lg p-3">
+                            <div class="flex justify-between items-center text-gray-600">
+                                <span class="font-medium">Ejercicios asignados:</span>
+                                <span class="text-orange-600 font-bold"><?php echo $asignaciones_semana; ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Prácticas libres -->
+                        <div class="bg-purple-50 rounded-lg p-3">
+                            <div class="flex justify-between items-center text-gray-600 mb-2">
+                                <span class="font-medium">Prácticas libres:</span>
+                                <span class="text-purple-600 font-bold"><?php echo $total_practicas; ?></span>
+                            </div>
+                            <div class="text-sm space-y-1">
+                                <div class="flex justify-between items-center text-gray-500">
+                                    <span>Días activos:</span>
+                                    <span class="text-purple-600"><?php echo $dias_practica; ?></span>
+                                </div>
+                                <div class="flex justify-between items-center text-gray-500">
+                                    <span>Aciertos:</span>
+                                    <span class="text-purple-600">
+                                        <?php 
+                                        if ($total_practicas > 0) {
+                                            $porcentaje = round(($practicas_correctas / $total_practicas) * 100);
+                                            echo $practicas_correctas . ' (' . $porcentaje . '%)';
+                                        } else {
+                                            echo '0';
+                                        }
+                                        ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Barra de progreso semanal -->
+                        <div class="pt-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Progreso semanal</span>
+                                <span><?php echo $total_actividades; ?> actividades</span>
+                            </div>
+                            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <?php if ($total_actividades > 0): ?>
+                                    <?php
+                                    $porcentaje_asignaciones = ($asignaciones_semana / $total_actividades) * 100;
+                                    $porcentaje_practicas = ($total_practicas / $total_actividades) * 100;
+                                    ?>
+                                    <div class="flex h-full">
+                                        <div class="bg-orange-500 h-full" style="width: <?php echo $porcentaje_asignaciones; ?>%"></div>
+                                        <div class="bg-purple-500 h-full" style="width: <?php echo $porcentaje_practicas; ?>%"></div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

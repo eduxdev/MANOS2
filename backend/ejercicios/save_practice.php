@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../db/conection.php';
+require_once 'check_badges.php';
 
 header('Content-Type: application/json');
 
@@ -79,6 +80,9 @@ try {
     $result = mysqli_stmt_get_result($stmt_total);
     $puntos_totales = mysqli_fetch_assoc($result)['puntos_totales'];
 
+    // 4. Verificar y otorgar insignias
+    $insignias_otorgadas = checkAndAwardBadges($estudiante_id);
+
     // Confirmar transacción
     mysqli_commit($conexion);
 
@@ -87,6 +91,7 @@ try {
         'success' => true,
         'puntos_ganados' => $puntos_ganados,
         'puntos_totales' => $puntos_totales,
+        'insignias_otorgadas' => $insignias_otorgadas,
         'mensaje' => $respuesta_correcta ? "¡Correcto! Has ganado $puntos_ganados punto(s)" : "Incorrecto. ¡Inténtalo de nuevo!"
     ]);
 

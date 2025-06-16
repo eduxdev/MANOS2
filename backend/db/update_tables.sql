@@ -40,7 +40,13 @@ INSERT INTO insignias (nombre, descripcion, imagen_url, requisito_puntos, requis
 ('Experto', 'Completaste 10 ejercicios', '/imagenes/insignias/experto.png', 0, 10, 'ejercicios'),
 ('Maestro', 'Alcanzaste 500 puntos', '/imagenes/insignias/maestro.png', 500, 0, 'puntos'),
 ('Velocista', 'Completaste 3 ejercicios en un día', '/imagenes/insignias/velocista.png', 0, 3, 'especial'),
-('Constante', 'Actividad durante 7 días seguidos', '/imagenes/insignias/constante.png', 0, 7, 'especial');
+('Constante', 'Actividad durante 7 días seguidos', '/imagenes/insignias/constante.png', 0, 7, 'especial'),
+('Aprendiz', 'Alcanzaste 50 puntos', '/imagenes/insignias/aprendiz.png', 50, 0, 'puntos'),
+('Estudiante Avanzado', 'Alcanzaste 250 puntos', '/imagenes/insignias/avanzado.png', 250, 0, 'puntos'),
+('Erudito', 'Alcanzaste 1000 puntos', '/imagenes/insignias/erudito.png', 1000, 0, 'puntos'),
+('Sabio', 'Alcanzaste 2000 puntos', '/imagenes/insignias/sabio.png', 2000, 0, 'puntos'),
+('Legendario', 'Alcanzaste 5000 puntos', '/imagenes/insignias/legendario.png', 5000, 0, 'puntos');
+
 
 -- Actualizar las rutas de las imágenes para usar una imagen por defecto
 UPDATE insignias SET imagen_url = '/imagenes/logo2.png';
@@ -65,4 +71,17 @@ ALTER TABLE usuarios
 ADD COLUMN puntos_practica INT DEFAULT 0;
 
 -- Índice para mejorar el rendimiento de las consultas de puntos
-CREATE INDEX idx_puntos_practica ON usuarios(puntos_practica); 
+CREATE INDEX idx_puntos_practica ON usuarios(puntos_practica);
+
+-- Agregar más insignias basadas en puntos
+INSERT INTO insignias (nombre, descripcion, imagen_url, requisito_puntos, requisito_ejercicios, tipo) VALUES
+('Novato Prometedor', 'Alcanzaste 25 puntos', '/imagenes/logo2.png', 25, 0, 'puntos'),
+('Estudiante Entusiasta', 'Alcanzaste 75 puntos', '/imagenes/logo2.png', 75, 0, 'puntos'),
+('Estudiante Sobresaliente', 'Alcanzaste 150 puntos', '/imagenes/logo2.png', 150, 0, 'puntos'),
+('Estudiante Elite', 'Alcanzaste 350 puntos', '/imagenes/logo2.png', 350, 0, 'puntos'),
+('Estudiante Excepcional', 'Alcanzaste 750 puntos', '/imagenes/logo2.png', 750, 0, 'puntos'),
+('Gran Maestro', 'Alcanzaste 1500 puntos', '/imagenes/logo2.png', 1500, 0, 'puntos'),
+('Iluminado', 'Alcanzaste 3000 puntos', '/imagenes/logo2.png', 3000, 0, 'puntos'),
+('Virtuoso', 'Alcanzaste 4000 puntos', '/imagenes/logo2.png', 4000, 0, 'puntos'),
+('Gran Sabio', 'Alcanzaste 7500 puntos', '/imagenes/logo2.png', 7500, 0, 'puntos'),
+('Supremo', 'Alcanzaste 10000 puntos', '/imagenes/logo2.png', 10000, 0, 'puntos'); 
