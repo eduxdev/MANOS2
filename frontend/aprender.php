@@ -181,6 +181,73 @@
                         <p id="incorrect-sign-feedback" class="text-lg font-medium"></p>
                     </div>
                 </section>
+
+                <!-- Ejercicio 5: Secuencia de Señas -->
+                <section class="exercise-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Ejercicio: Secuencia de Señas</h2>
+                            <p class="text-gray-600 mt-2">Memoriza y repite la secuencia de señas mostrada</p>
+                        </div>
+                        <div class="hidden md:block">
+                            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-6 mb-6">
+                        <div class="flex justify-between items-center">
+                            <p class="text-lg font-semibold text-gray-800">
+                                Nivel: <span id="sequence-level" class="text-2xl font-bold text-green-600 ml-2">1</span>
+                            </p>
+                            <p class="text-sm text-gray-600">Puntos: <span id="sequence-points" class="font-bold">0</span></p>
+                        </div>
+                    </div>
+                    <div id="sequence-display" class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
+                        <!-- Las señas de la secuencia se mostrarán aquí -->
+                    </div>
+                    <div id="sequence-input" class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
+                        <!-- Área para que el usuario repita la secuencia -->
+                    </div>
+                    <div class="mt-6 flex items-center justify-between">
+                        <button id="start-sequence" class="custom-button">
+                            Iniciar Secuencia
+                        </button>
+                        <p id="sequence-feedback" class="text-lg font-medium"></p>
+                    </div>
+                </section>
+
+                <!-- Ejercicio 6: Memorama de Señas -->
+                <section class="exercise-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Ejercicio: Memorama de Señas</h2>
+                            <p class="text-gray-600 mt-2">Encuentra los pares de letras y señas correspondientes</p>
+                        </div>
+                        <div class="hidden md:block">
+                            <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                        <div class="flex justify-between items-center">
+                            <p class="text-lg font-semibold text-gray-800">
+                                Pares encontrados: <span id="pairs-found" class="text-2xl font-bold text-blue-600 ml-2">0</span>
+                            </p>
+                            <p class="text-sm text-gray-600">Intentos: <span id="memory-attempts" class="font-bold">0</span></p>
+                        </div>
+                    </div>
+                    <div id="memory-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                        <!-- Las cartas del memorama se generarán aquí -->
+                    </div>
+                    <div class="mt-6 flex items-center justify-between">
+                        <button id="start-memory" class="custom-button">
+                            Nuevo Juego
+                        </button>
+                        <p id="memory-feedback" class="text-lg font-medium"></p>
+                    </div>
+                </section>
             </div>
         </div>
     </main>

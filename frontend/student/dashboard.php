@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once '../../backend/db/conection.php';
+require_once __DIR__ . '/../../backend/db/conection.php';
+require_once __DIR__ . '/../../backend/ejercicios/check_badges.php';
 
 // Verificar si el usuario está logueado y es estudiante
 if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
@@ -10,6 +11,44 @@ if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
 
 // Obtener datos del estudiante
 $user_id = $_SESSION['user_id'];
+
+// Obtener estadísticas de práctica
+$query_practicas = "SELECT 
+    COUNT(*) as total_practicas,
+    SUM(CASE WHEN respuesta_correcta = 1 THEN 1 ELSE 0 END) as respuestas_correctas,
+    tipo_ejercicio,
+    DATE(fecha_practica) as fecha
+FROM practicas_ejercicios
+WHERE estudiante_id = ?
+AND fecha_practica >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+GROUP BY tipo_ejercicio, DATE(fecha_practica)
+ORDER BY fecha_practica DESC";
+
+$stmt = mysqli_prepare($conexion, $query_practicas);
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$practicas = mysqli_stmt_get_result($stmt);
+
+// Procesar los datos para el gráfico
+$practicas_por_tipo = [];
+$practicas_por_fecha = [];
+while ($practica = mysqli_fetch_assoc($practicas)) {
+    // Agrupar por tipo
+    if (!isset($practicas_por_tipo[$practica['tipo_ejercicio']])) {
+        $practicas_por_tipo[$practica['tipo_ejercicio']] = [
+            'total' => 0,
+            'correctas' => 0
+        ];
+    }
+    $practicas_por_tipo[$practica['tipo_ejercicio']]['total'] += $practica['total_practicas'];
+    $practicas_por_tipo[$practica['tipo_ejercicio']]['correctas'] += $practica['respuestas_correctas'];
+
+    // Agrupar por fecha
+    if (!isset($practicas_por_fecha[$practica['fecha']])) {
+        $practicas_por_fecha[$practica['fecha']] = 0;
+    }
+    $practicas_por_fecha[$practica['fecha']] += $practica['total_practicas'];
+}
 
 // Obtener progreso general actualizado
 $query_progreso = "SELECT 
@@ -33,6 +72,14 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $progreso = mysqli_fetch_assoc($result);
 
+// Obtener puntos de práctica
+$query_puntos = "SELECT puntos_practica FROM usuarios WHERE id = ?";
+$stmt = mysqli_prepare($conexion, $query_puntos);
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$puntos_practica = mysqli_fetch_assoc($result)['puntos_practica'];
+
 // Obtener ejercicios asignados pendientes
 $query_asignaciones = "SELECT 
     a.id, 
@@ -53,11 +100,15 @@ mysqli_stmt_bind_param($stmt, "i", $user_id);
 mysqli_stmt_execute($stmt);
 $asignaciones = mysqli_stmt_get_result($stmt);
 
-// Obtener insignias del estudiante
-$query_insignias = "SELECT i.*
-FROM insignias i
-JOIN insignias_usuarios iu ON i.id = iu.insignia_id
-WHERE iu.usuario_id = ?";
+// Verificar y otorgar nuevas insignias
+$nuevas_insignias = checkAndAwardBadges($user_id);
+
+// Obtener todas las insignias del estudiante con detalles
+$query_insignias = "SELECT i.*, iu.fecha_obtencion 
+                   FROM insignias i
+                   JOIN insignias_usuarios iu ON i.id = iu.insignia_id
+                   WHERE iu.usuario_id = ?
+                   ORDER BY iu.fecha_obtencion DESC";
 
 $stmt = mysqli_prepare($conexion, $query_insignias);
 mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -100,6 +151,8 @@ $insignias = mysqli_stmt_get_result($stmt);
 </head>
 <body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
     <?php include '../header.php'; ?>
+    <?php include '../components/modal.php'; ?>
+    <?php showModal('message-modal'); ?>
 
     <!-- Modal de subida de evidencias -->
     <div id="evidence-modal" class="modal">
@@ -227,10 +280,24 @@ $insignias = mysqli_stmt_get_result($stmt);
                             </svg>
                         </div>
                     </div>
-                    <div class="text-3xl font-bold text-pink-600 mb-2">
-                        <?php echo number_format($progreso['puntos_totales']); ?>
+                    <div class="space-y-2">
+                        <div>
+                            <div class="text-3xl font-bold text-pink-600 mb-1">
+                                <?php echo number_format($progreso['puntos_totales'] + $puntos_practica); ?>
+                            </div>
+                            <p class="text-gray-600">Puntos totales</p>
+                        </div>
+                        <div class="border-t border-gray-200 pt-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Ejercicios asignados:</span>
+                                <span class="font-medium text-pink-600"><?php echo number_format($progreso['puntos_totales']); ?></span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Práctica libre:</span>
+                                <span class="font-medium text-pink-600"><?php echo number_format($puntos_practica); ?></span>
+                            </div>
+                        </div>
                     </div>
-                    <p class="text-gray-600">Puntos acumulados</p>
                 </div>
 
                 <!-- Racha actual -->
@@ -248,6 +315,89 @@ $insignias = mysqli_stmt_get_result($stmt);
                     </div>
                     <p class="text-gray-600">Ejercicios esta semana</p>
                 </div>
+            </div>
+
+            <!-- Estadísticas de práctica -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Progreso de Práctica</h2>
+                
+                <?php if (!empty($practicas_por_tipo)): ?>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Estadísticas por tipo de ejercicio -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">Ejercicios por Tipo</h3>
+                            <div class="space-y-4">
+                                <?php foreach ($practicas_por_tipo as $tipo => $datos): ?>
+                                    <div class="bg-purple-50 rounded-lg p-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="font-medium text-purple-900">
+                                                <?php 
+                                                $nombre_tipo = [
+                                                    'letterIdentification' => 'Identificación de Letras',
+                                                    'wordCompletion' => 'Completar Palabras',
+                                                    'signRecognition' => 'Reconocimiento de Señas',
+                                                    'errorDetection' => 'Detección de Errores'
+                                                ];
+                                                echo $nombre_tipo[$tipo] ?? $tipo;
+                                                ?>
+                                            </span>
+                                            <span class="text-sm text-purple-600">
+                                                <?php 
+                                                $porcentaje = $datos['total'] > 0 ? round(($datos['correctas'] / $datos['total']) * 100) : 0;
+                                                echo "{$porcentaje}% correctas";
+                                                ?>
+                                            </span>
+                                        </div>
+                                        <div class="w-full bg-purple-200 rounded-full h-2">
+                                            <div class="bg-purple-600 h-2 rounded-full" 
+                                                 style="width: <?php echo $porcentaje; ?>%">
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 text-sm text-purple-600">
+                                            <?php echo "{$datos['correctas']} de {$datos['total']} ejercicios"; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Actividad reciente -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">Actividad Últimos 7 Días</h3>
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <?php 
+                                    $total_semana = 0;
+                                    foreach ($practicas_por_fecha as $fecha => $total): 
+                                        $total_semana += $total;
+                                        $fecha_formateada = date('d/m/Y', strtotime($fecha));
+                                    ?>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-purple-900"><?php echo $fecha_formateada; ?></span>
+                                            <span class="text-sm font-medium text-purple-600">
+                                                <?php echo $total; ?> ejercicios
+                                            </span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    <div class="pt-3 border-t border-purple-200">
+                                        <div class="flex justify-between items-center font-medium">
+                                            <span class="text-purple-900">Total de la semana</span>
+                                            <span class="text-purple-600"><?php echo $total_semana; ?> ejercicios</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center text-gray-500 py-8">
+                        <p>Aún no has realizado ejercicios de práctica.</p>
+                        <a href="/frontend/aprender.php" 
+                           class="inline-block mt-4 px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors">
+                            Comenzar a practicar
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- Ejercicios asignados -->
@@ -303,26 +453,59 @@ $insignias = mysqli_stmt_get_result($stmt);
 
             <!-- Insignias -->
             <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Tus Insignias</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Tus Insignias</h2>
+                    <span class="text-sm text-gray-600">
+                        <?php echo mysqli_num_rows($insignias); ?> insignias obtenidas
+                    </span>
+                </div>
+                
+                <?php if (!empty($nuevas_insignias)): ?>
+                    <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-green-800 mb-2">¡Nuevas insignias desbloqueadas!</h3>
+                        <ul class="list-disc list-inside text-green-700">
+                            <?php foreach ($nuevas_insignias as $insignia): ?>
+                                <li><?php echo htmlspecialchars($insignia); ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
                 
                 <?php if (mysqli_num_rows($insignias) > 0): ?>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                         <?php while ($insignia = mysqli_fetch_assoc($insignias)): ?>
                             <div class="text-center transform transition-all duration-300 hover:scale-110">
-                                <div class="w-20 h-20 mx-auto mb-2 float-animation">
-                                    <img src="<?php echo htmlspecialchars($insignia['imagen_url']); ?>" 
-                                         alt="<?php echo htmlspecialchars($insignia['nombre']); ?>"
-                                         class="w-full h-full object-contain">
+                                <div class="relative">
+                                    <div class="w-20 h-20 mx-auto mb-2 float-animation">
+                                        <img src="<?php echo htmlspecialchars($insignia['imagen_url']); ?>" 
+                                             alt="<?php echo htmlspecialchars($insignia['nombre']); ?>"
+                                             class="w-full h-full object-contain">
+                                    </div>
+                                    <div class="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                                        <span class="sr-only">Fecha de obtención</span>
+                                        <?php echo date('d/m', strtotime($insignia['fecha_obtencion'])); ?>
+                                    </div>
                                 </div>
-                                <h4 class="text-sm font-medium text-gray-800">
+                                <h4 class="text-sm font-medium text-gray-800 mb-1">
                                     <?php echo htmlspecialchars($insignia['nombre']); ?>
                                 </h4>
+                                <p class="text-xs text-gray-600">
+                                    <?php echo htmlspecialchars($insignia['descripcion']); ?>
+                                </p>
                             </div>
                         <?php endwhile; ?>
                     </div>
                 <?php else: ?>
-                    <div class="text-center text-gray-500 py-8">
-                        <p>¡Completa ejercicios para ganar insignias!</p>
+                    <div class="text-center py-8">
+                        <div class="w-24 h-24 mx-auto mb-4 text-gray-300">
+                            <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">¡Aún no tienes insignias!</h3>
+                        <p class="text-gray-600">
+                            Completa ejercicios y gana puntos para desbloquear insignias.
+                        </p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -359,7 +542,7 @@ $insignias = mysqli_stmt_get_result($stmt);
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 10 * 1024 * 1024) { // 10MB
-                    alert('El archivo es demasiado grande. Por favor, selecciona un archivo menor a 10MB.');
+                    showMessageModal('message-modal', 'Error', 'El archivo es demasiado grande. Por favor, selecciona un archivo menor a 10MB.');
                     fileInput.value = '';
                     return;
                 }
@@ -378,7 +561,7 @@ $insignias = mysqli_stmt_get_result($stmt);
         evidenceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!evidenceFile) {
-                alert('Por favor, sube una evidencia antes de enviar.');
+                showMessageModal('message-modal', 'Error', 'Por favor, sube una evidencia antes de enviar.');
                 return;
             }
 
@@ -394,15 +577,14 @@ $insignias = mysqli_stmt_get_result($stmt);
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert('Evidencia enviada correctamente');
+                    showMessageModal('message-modal', 'Éxito', 'Evidencia enviada correctamente', 'location.reload()');
                     closeModal();
-                    location.reload(); // Recargar para actualizar el estado
                 } else {
-                    alert('Error al enviar la evidencia: ' + data.error);
+                    showMessageModal('message-modal', 'Error', 'Error al enviar la evidencia: ' + data.error);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al enviar la evidencia');
+                showMessageModal('message-modal', 'Error', 'Error al enviar la evidencia');
             }
         });
     </script>

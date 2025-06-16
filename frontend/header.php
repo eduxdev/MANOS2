@@ -48,14 +48,14 @@ function getDashboardPath($rol) {
           <a href="/frontend/traducir_palabras.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Traducir Palabras</a>
           <a href="/frontend/aprender.php" class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">Aprender</a>
         </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-x-4">
           <?php if(isset($_SESSION['user_id'])): ?>
             <!-- Si el usuario está logueado -->
-            <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
-               class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">
-              Dashboard
-            </a>
-            <div class="flex items-center gap-x-2">
+            <div class="flex items-center gap-x-4">
+              <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
+                 class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">
+                Dashboard
+              </a>
               <span class="text-sm font-medium text-pink-300">
                 <?php echo htmlspecialchars($_SESSION['nombre']); ?>
               </span>
@@ -97,11 +97,11 @@ function getDashboardPath($rol) {
             <a href="/frontend/traducir_palabras.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Traducir Palabras</a>
             <a href="/frontend/aprender.php" class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">Aprender</a>
             <?php if(isset($_SESSION['user_id'])): ?>
-              <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
-                 class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">
-                Dashboard
-              </a>
-              <div class="pt-4">
+              <div class="pt-4 space-y-2">
+                <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
+                   class="block rounded-lg px-3 py-2 text-base font-semibold text-pink-300 hover:bg-pink-300/10 transition">
+                  Dashboard
+                </a>
                 <span class="block px-3 py-2 text-base font-medium text-pink-300">
                   <?php echo htmlspecialchars($_SESSION['nombre']); ?>
                 </span>

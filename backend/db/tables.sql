@@ -119,24 +119,35 @@ CREATE TABLE resultados_ejercicios (
 );
 
 -- Tabla de insignias
-CREATE TABLE insignias (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS insignias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    imagen_url VARCHAR(255),
-    puntos_requeridos INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    imagen_url VARCHAR(255) NOT NULL,
+    requisito_puntos INT DEFAULT 0,
+    requisito_ejercicios INT DEFAULT 0,
+    tipo ENUM('puntos', 'ejercicios', 'especial') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabla de insignias_usuarios
-CREATE TABLE insignias_usuarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+-- Tabla de relación entre usuarios e insignias
+CREATE TABLE IF NOT EXISTS insignias_usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
     insignia_id INT NOT NULL,
-    fecha_obtencion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (insignia_id) REFERENCES insignias(id)
-);
+    fecha_obtencion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (insignia_id) REFERENCES insignias(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_usuario_insignia (usuario_id, insignia_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insertar algunas insignias predefinidas
+INSERT INTO insignias (nombre, descripcion, imagen_url, requisito_puntos, requisito_ejercicios, tipo) VALUES
+('Principiante', 'Completaste tu primer ejercicio', '/imagenes/insignias/principiante.png', 0, 1, 'ejercicios'),
+('Estudiante Dedicado', 'Alcanzaste 100 puntos', '/imagenes/insignias/dedicado.png', 100, 0, 'puntos'),
+('Experto', 'Completaste 10 ejercicios', '/imagenes/insignias/experto.png', 0, 10, 'ejercicios'),
+('Maestro', 'Alcanzaste 500 puntos', '/imagenes/insignias/maestro.png', 500, 0, 'puntos'),
+('Velocista', 'Completaste 3 ejercicios en un día', '/imagenes/insignias/velocista.png', 0, 3, 'especial'),
+('Constante', 'Actividad durante 7 días seguidos', '/imagenes/insignias/constante.png', 0, 7, 'especial');
 
 -- Índices para optimizar las consultas
 CREATE INDEX idx_usuarios_rol ON usuarios(rol_id);

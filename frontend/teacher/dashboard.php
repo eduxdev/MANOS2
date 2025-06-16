@@ -24,7 +24,15 @@ $query_general_stats = "SELECT
     COUNT(DISTINCT u.id) as total_estudiantes,
     COUNT(DISTINCT a.id) as total_asignaciones,
     COUNT(DISTINCT CASE WHEN ea.estado = 'completado' THEN ea.id END) as asignaciones_completadas,
-    SUM(ea.puntos_obtenidos) as total_puntos
+    SUM(ea.puntos_obtenidos) as total_puntos_asignaciones,
+    SUM(u.puntos_practica) as total_puntos_practica,
+    (SELECT COUNT(*) FROM practicas_ejercicios pe 
+     JOIN usuarios u2 ON pe.estudiante_id = u2.id 
+     WHERE u2.rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')
+     AND pe.respuesta_correcta = 1) as ejercicios_correctos,
+    (SELECT COUNT(*) FROM practicas_ejercicios pe 
+     JOIN usuarios u2 ON pe.estudiante_id = u2.id 
+     WHERE u2.rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')) as total_ejercicios
 FROM usuarios u
 LEFT JOIN estudiantes_asignaciones ea ON u.id = ea.estudiante_id
 LEFT JOIN asignaciones a ON ea.asignacion_id = a.id AND a.profesor_id = ?
@@ -40,14 +48,21 @@ $query_asignaciones = "SELECT
     a.id,
     a.fecha_asignacion,
     a.fecha_limite,
+    a.grupo_asignado,
+    (SELECT DISTINCT u.grado 
+     FROM usuarios u 
+     WHERE u.grupo = a.grupo_asignado 
+     LIMIT 1) as grado,
     e.titulo as ejercicio_titulo,
-    COUNT(DISTINCT ea.estudiante_id) as total_estudiantes,
-    COUNT(DISTINCT CASE WHEN ea.estado = 'completada' THEN ea.estudiante_id END) as estudiantes_completados
+    (SELECT COUNT(DISTINCT estudiante_id) 
+     FROM estudiantes_asignaciones 
+     WHERE asignacion_id = a.id) as total_estudiantes,
+    (SELECT COUNT(DISTINCT estudiante_id) 
+     FROM estudiantes_asignaciones 
+     WHERE asignacion_id = a.id AND estado = 'completado') as estudiantes_completados
 FROM asignaciones a
 JOIN ejercicios e ON a.ejercicio_id = e.id
-LEFT JOIN estudiantes_asignaciones ea ON a.id = ea.asignacion_id
 WHERE a.profesor_id = ?
-GROUP BY a.id
 ORDER BY a.fecha_asignacion DESC
 LIMIT 5";
 
@@ -78,7 +93,9 @@ $query_entregas = "SELECT
     e.titulo as ejercicio,
     ea.fecha_entrega,
     ea.puntos_obtenidos,
-    ea.evidencia_path
+    ea.evidencia_path,
+    ea.asignacion_id,
+    ea.estudiante_id
 FROM estudiantes_asignaciones ea
 JOIN asignaciones a ON ea.asignacion_id = a.id
 JOIN usuarios u ON ea.estudiante_id = u.id
@@ -91,6 +108,28 @@ $stmt = mysqli_prepare($conexion, $query_entregas);
 mysqli_stmt_bind_param($stmt, "i", $profesor_id);
 mysqli_stmt_execute($stmt);
 $entregas = mysqli_stmt_get_result($stmt);
+
+// Obtener ranking de estudiantes por puntos
+$query_ranking = "SELECT 
+    u.id,
+    u.nombre,
+    u.apellidos,
+    u.grupo,
+    u.grado,
+    u.puntos_practica,
+    COALESCE(SUM(ea.puntos_obtenidos), 0) as puntos_asignaciones,
+    (u.puntos_practica + COALESCE(SUM(ea.puntos_obtenidos), 0)) as puntos_totales,
+    COUNT(DISTINCT CASE WHEN ea.estado = 'completado' THEN ea.asignacion_id END) as ejercicios_completados,
+    (SELECT COUNT(*) FROM practicas_ejercicios pe WHERE pe.estudiante_id = u.id) as total_ejercicios,
+    (SELECT COUNT(*) FROM practicas_ejercicios pe WHERE pe.estudiante_id = u.id AND pe.respuesta_correcta = 1) as ejercicios_correctos
+FROM usuarios u
+LEFT JOIN estudiantes_asignaciones ea ON u.id = ea.estudiante_id
+WHERE u.rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')
+GROUP BY u.id, u.nombre, u.apellidos, u.grupo, u.grado, u.puntos_practica
+ORDER BY puntos_totales DESC
+LIMIT 5";
+
+$result_ranking = mysqli_query($conexion, $query_ranking);
 ?>
 
 <!DOCTYPE html>
@@ -103,6 +142,8 @@ $entregas = mysqli_stmt_get_result($stmt);
 </head>
 <body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
     <?php include '../header.php'; ?>
+    <?php include '../components/modal.php'; ?>
+    <?php showModal('message-modal'); ?>
 
     <main class="pt-32 pb-24">
         <div class="container mx-auto px-4 max-w-7xl">
@@ -151,7 +192,7 @@ $entregas = mysqli_stmt_get_result($stmt);
                         <h3 class="text-lg font-semibold text-gray-800">Asignaciones</h3>
                         <div class="text-pink-600">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
@@ -203,6 +244,71 @@ $entregas = mysqli_stmt_get_result($stmt);
                 </div>
             </div>
 
+            <!-- Estadísticas de ejercicios de práctica -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Estadísticas de Práctica</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-purple-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Ejercicios</h3>
+                        <p class="text-3xl font-bold text-purple-600"><?php echo $general_stats['total_ejercicios']; ?></p>
+                        <p class="text-sm text-gray-600 mt-2">Ejercicios realizados</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ejercicios Correctos</h3>
+                        <p class="text-3xl font-bold text-green-600"><?php echo $general_stats['ejercicios_correctos']; ?></p>
+                        <p class="text-sm text-gray-600 mt-2">Respuestas correctas</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Tasa de Éxito</h3>
+                        <p class="text-3xl font-bold text-blue-600">
+                            <?php 
+                            $tasa_exito = $general_stats['total_ejercicios'] > 0 
+                                ? round(($general_stats['ejercicios_correctos'] / $general_stats['total_ejercicios']) * 100) 
+                                : 0;
+                            echo $tasa_exito . '%';
+                            ?>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-2">Porcentaje de aciertos</p>
+                    </div>
+                    <div class="bg-pink-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Práctica</h3>
+                        <p class="text-3xl font-bold text-pink-600"><?php echo $general_stats['total_puntos_practica']; ?></p>
+                        <p class="text-sm text-gray-600 mt-2">Total acumulado</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de puntos -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Resumen de Puntos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Asignaciones</h3>
+                        <p class="text-3xl font-bold text-purple-600">
+                            <?php echo $general_stats['total_puntos_asignaciones']; ?>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-2">Obtenidos en tareas</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Práctica</h3>
+                        <p class="text-3xl font-bold text-blue-600">
+                            <?php echo $general_stats['total_puntos_practica']; ?>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-2">Obtenidos en ejercicios</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos Totales</h3>
+                        <p class="text-3xl font-bold text-pink-600">
+                            <?php 
+                            $total_puntos = $general_stats['total_puntos_asignaciones'] + $general_stats['total_puntos_practica'];
+                            echo $total_puntos;
+                            ?>
+                        </p>
+                        <p class="text-sm text-gray-600 mt-2">Total acumulado</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Últimas entregas -->
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Últimas Entregas</h2>
@@ -225,7 +331,7 @@ $entregas = mysqli_stmt_get_result($stmt);
                                         Puntos
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Evidencia
+                                        Acciones
                                     </th>
                                 </tr>
                             </thead>
@@ -254,11 +360,17 @@ $entregas = mysqli_stmt_get_result($stmt);
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <?php if ($entrega['evidencia_path']): ?>
-                                                <a href="/<?php echo htmlspecialchars($entrega['evidencia_path']); ?>" 
-                                                   target="_blank"
-                                                   class="text-purple-600 hover:text-purple-900">
-                                                    Ver evidencia
-                                                </a>
+                                                <div class="flex items-center space-x-4">
+                                                    <a href="/<?php echo htmlspecialchars($entrega['evidencia_path']); ?>" 
+                                                       target="_blank"
+                                                       class="text-purple-600 hover:text-purple-900">
+                                                        Ver evidencia
+                                                    </a>
+                                                    <button onclick="invalidateSubmission(<?php echo $entrega['asignacion_id']; ?>, <?php echo $entrega['estudiante_id']; ?>)"
+                                                            class="text-red-600 hover:text-red-900">
+                                                        Invalidar
+                                                    </button>
+                                                </div>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
@@ -291,6 +403,9 @@ $entregas = mysqli_stmt_get_result($stmt);
                                         Ejercicio
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Grupo y Grado
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Fecha Asignación
                                     </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -310,6 +425,16 @@ $entregas = mysqli_stmt_get_result($stmt);
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">
                                                 <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                <?php 
+                                                echo "Grupo " . htmlspecialchars($asignacion['grupo_asignado']);
+                                                if ($asignacion['grado']) {
+                                                    echo " - " . htmlspecialchars($asignacion['grado']) . "° Grado";
+                                                }
+                                                ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -333,15 +458,21 @@ $entregas = mysqli_stmt_get_result($stmt);
                                                     <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
                                                 </div>
                                                 <span class="ml-2 text-sm text-gray-600">
-                                                    <?php echo round($porcentaje); ?>%
+                                                    <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
                                                 </span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
-                                               class="text-purple-600 hover:text-purple-900">
-                                                Ver detalles
-                                            </a>
+                                            <div class="flex justify-end space-x-4">
+                                                <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
+                                                   class="text-purple-600 hover:text-purple-900">
+                                                    Ver detalles
+                                                </a>
+                                                <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
+                                                        class="text-red-600 hover:text-red-900">
+                                                    Eliminar
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -353,6 +484,82 @@ $entregas = mysqli_stmt_get_result($stmt);
                         <p>No hay asignaciones recientes.</p>
                     </div>
                 <?php endif; ?>
+            </div>
+
+            <!-- Separador decorativo -->
+            <div class="relative py-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-gradient-to-b from-white to-purple-50 px-4 text-sm font-semibold text-gray-500">
+                        Ranking y Estudiantes
+                    </span>
+                </div>
+            </div>
+
+            <!-- Ranking de estudiantes -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Top 5 Estudiantes</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <?php 
+                    $posicion = 1;
+                    while ($estudiante = mysqli_fetch_assoc($result_ranking)): 
+                        $tasa_exito = $estudiante['total_ejercicios'] > 0 
+                            ? round(($estudiante['ejercicios_correctos'] / $estudiante['total_ejercicios']) * 100) 
+                            : 0;
+                    ?>
+                        <div class="bg-gradient-to-r <?php echo $posicion === 1 ? 'from-yellow-50 to-orange-50 border-2 border-yellow-200' : 'from-purple-50 to-pink-50'; ?> rounded-xl p-6 transition-transform hover:scale-[1.02]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0 w-12 h-12 <?php echo $posicion === 1 ? 'bg-yellow-200' : 'bg-purple-200'; ?> rounded-full flex items-center justify-center">
+                                        <span class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-800' : 'text-purple-800'; ?>">
+                                            #<?php echo $posicion; ?>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">
+                                            <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
+                                        </h3>
+                                        <p class="text-sm text-gray-600">
+                                            Grupo <?php echo htmlspecialchars($estudiante['grupo']); ?> - 
+                                            <?php echo htmlspecialchars($estudiante['grado']); ?>° Grado
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-600' : 'text-purple-600'; ?>">
+                                        <?php echo $estudiante['puntos_totales']; ?>
+                                    </p>
+                                    <p class="text-sm text-gray-600">puntos totales</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-4 text-sm">
+                                <div class="text-center">
+                                    <p class="font-medium text-gray-900"><?php echo $estudiante['ejercicios_completados']; ?></p>
+                                    <p class="text-gray-600">tareas completadas</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-medium text-gray-900"><?php echo $tasa_exito; ?>%</p>
+                                    <p class="text-gray-600">tasa de éxito</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-medium text-gray-900"><?php echo $estudiante['puntos_practica']; ?></p>
+                                    <p class="text-gray-600">puntos práctica</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="student_progress.php?id=<?php echo $estudiante['id']; ?>" 
+                                   class="text-sm font-medium <?php echo $posicion === 1 ? 'text-yellow-600 hover:text-yellow-700' : 'text-purple-600 hover:text-purple-700'; ?>">
+                                    Ver progreso detallado →
+                                </a>
+                            </div>
+                        </div>
+                    <?php 
+                        $posicion++;
+                    endwhile; 
+                    ?>
+                </div>
             </div>
 
             <!-- Selector de grupo y lista de estudiantes -->
@@ -379,6 +586,70 @@ $entregas = mysqli_stmt_get_result($stmt);
     <?php include '../footer.php'; ?>
 
     <script>
+        // Función para invalidar entrega
+        function invalidateSubmission(assignmentId, studentId) {
+            showMessageModal(
+                'message-modal',
+                'Confirmar invalidación',
+                '¿Estás seguro de que deseas invalidar esta entrega? Se restarán los puntos obtenidos.',
+                'handleInvalidateSubmission(' + assignmentId + ', ' + studentId + ')'
+            );
+        }
+
+        function handleInvalidateSubmission(assignmentId, studentId) {
+            fetch('handle_assignment_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=invalidate_submission&assignment_id=' + assignmentId + '&student_id=' + studentId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessageModal('message-modal', 'Éxito', 'Entrega invalidada correctamente', 'location.reload()');
+                } else {
+                    showMessageModal('message-modal', 'Error', 'Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageModal('message-modal', 'Error', 'Error al procesar la solicitud');
+            });
+        }
+
+        // Función para eliminar asignación
+        function deleteAssignment(assignmentId) {
+            showMessageModal(
+                'message-modal',
+                'Confirmar eliminación',
+                '¿Estás seguro de que deseas eliminar esta asignación? Esta acción no se puede deshacer.',
+                'handleDeleteAssignment(' + assignmentId + ')'
+            );
+        }
+
+        function handleDeleteAssignment(assignmentId) {
+            fetch('handle_assignment_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=delete_assignment&assignment_id=' + assignmentId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessageModal('message-modal', 'Éxito', 'Asignación eliminada correctamente', 'location.reload()');
+                } else {
+                    showMessageModal('message-modal', 'Error', 'Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageModal('message-modal', 'Error', 'Error al procesar la solicitud');
+            });
+        }
+
         // Cargar estudiantes por grupo
         document.getElementById('grupo_selector').addEventListener('change', function() {
             const grupo = this.value;
@@ -412,25 +683,42 @@ $entregas = mysqli_stmt_get_result($stmt);
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Ejercicios completados:</span>
+                                    <span class="text-gray-600">Ejercicios de práctica:</span>
+                                    <span class="font-medium">${estudiante.ejercicios_correctos}/${estudiante.total_ejercicios}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Tareas completadas:</span>
                                     <span class="font-medium">${estudiante.ejercicios_completados}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Puntos totales:</span>
-                                    <span class="font-medium">${estudiante.puntos_totales}</span>
+                                    <span class="text-gray-600">Puntos de práctica:</span>
+                                    <span class="font-medium text-purple-600">${estudiante.puntos_practica}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Puntos de tareas:</span>
+                                    <span class="font-medium text-pink-600">${estudiante.puntos_asignaciones}</span>
+                                </div>
+                                <div class="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-purple-100">
+                                    <span class="text-gray-700">Puntos totales:</span>
+                                    <span class="text-blue-600">${estudiante.puntos_totales}</span>
                                 </div>
                             </div>
-                            <a href="student_progress.php?id=${estudiante.id}" 
-                               class="mt-4 inline-block text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                Ver progreso detallado →
-                            </a>
+                            <div class="mt-4 flex justify-between items-center">
+                                <a href="student_progress.php?id=${estudiante.id}" 
+                                   class="inline-block text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                    Ver progreso detallado →
+                                </a>
+                                <div class="text-xs text-gray-500">
+                                    Tasa de éxito: ${estudiante.total_ejercicios > 0 ? Math.round((estudiante.ejercicios_correctos / estudiante.total_ejercicios) * 100) : 0}%
+                                </div>
+                            </div>
                         `;
                         listaEstudiantes.appendChild(card);
                     });
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    listaEstudiantes.innerHTML = '<p class="text-center text-red-500 col-span-3">Error al cargar los estudiantes</p>';
+                    showMessageModal('message-modal', 'Error', 'Error al cargar los estudiantes');
                 });
         });
     </script>

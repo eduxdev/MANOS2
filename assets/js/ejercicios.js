@@ -75,38 +75,31 @@ function generateExercise() {
         optionsContainer.appendChild(container);
     });
 
-    checkAnswerButton.addEventListener('click', () => {
+    checkAnswerButton.addEventListener('click', async () => {
         const selectedOption = optionsContainer.querySelector('img.ring-4');
         if (!selectedOption) {
-            feedbackElement.textContent = 'Por favor, selecciona una opción';
-            feedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
         const isCorrect = selectedOption.dataset.letter === correctLetter;
-        if (isCorrect) {
-            feedbackElement.textContent = '¡Correcto! 🎉';
-            feedbackElement.className = 'text-lg font-medium text-green-500';
-            selectedOption.classList.add('scale-110');
-            setTimeout(() => {
-                feedbackElement.textContent = '';
-                generateExercise();
-            }, 1500);
-        } else {
-            feedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            feedbackElement.className = 'text-lg font-medium text-red-500';
-        }
-
-        // Emitir evento de respuesta
-        const event = new CustomEvent('exerciseAnswered', {
-            detail: {
-                type: 'letterIdentification',
-                isCorrect,
+        const practiceData = {
+            tipo_ejercicio: 'letterIdentification',
+            respuesta_correcta: isCorrect,
+            detalles: {
                 letter: correctLetter,
                 selectedLetter: selectedOption.dataset.letter
             }
-        });
-        document.dispatchEvent(event);
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
+            selectedOption.classList.add('scale-110');
+            setTimeout(() => {
+                generateExercise();
+            }, 1500);
+        }
     });
 }
 
@@ -179,30 +172,24 @@ function generateWordExercise() {
         wordOptionsContainer.appendChild(container);
     });
 
-    checkWordAnswerButton.addEventListener('click', () => {
+    checkWordAnswerButton.addEventListener('click', async () => {
         const isCorrect = selectedLetters.join('') === correctWord;
-        if (isCorrect) {
-            wordFeedbackElement.textContent = '¡Correcto! 🎉';
-            wordFeedbackElement.className = 'text-lg font-medium text-green-500';
-            setTimeout(() => {
-                wordFeedbackElement.textContent = '';
-                generateWordExercise();
-            }, 1500);
-        } else {
-            wordFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            wordFeedbackElement.className = 'text-lg font-medium text-red-500';
-        }
-
-        // Emitir evento de respuesta
-        const event = new CustomEvent('exerciseAnswered', {
-            detail: {
-                type: 'wordCompletion',
-                isCorrect,
+        const practiceData = {
+            tipo_ejercicio: 'wordCompletion',
+            respuesta_correcta: isCorrect,
+            detalles: {
                 word: correctWord,
                 selectedWord: selectedLetters.join('')
             }
-        });
-        document.dispatchEvent(event);
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
+            setTimeout(() => {
+                generateWordExercise();
+            }, 1500);
+        }
     });
 }
 
@@ -257,37 +244,30 @@ function generateSignRecognition() {
         signOptionsContainer.appendChild(button);
     });
 
-    checkSignAnswerButton.addEventListener('click', () => {
+    checkSignAnswerButton.addEventListener('click', async () => {
         const selectedOption = signOptionsContainer.querySelector('.bg-purple-600');
         if (!selectedOption) {
-            signFeedbackElement.textContent = 'Por favor, selecciona una opción';
-            signFeedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
         const isCorrect = selectedOption.dataset.letter === correctSignLetter;
-        if (isCorrect) {
-            signFeedbackElement.textContent = '¡Correcto! 🎉';
-            signFeedbackElement.className = 'text-lg font-medium text-green-500';
-            setTimeout(() => {
-                signFeedbackElement.textContent = '';
-                generateSignRecognition();
-            }, 1500);
-        } else {
-            signFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            signFeedbackElement.className = 'text-lg font-medium text-red-500';
-        }
-
-        // Emitir evento de respuesta
-        const event = new CustomEvent('exerciseAnswered', {
-            detail: {
-                type: 'signRecognition',
-                isCorrect,
-                sign: correctSignLetter,
+        const practiceData = {
+            tipo_ejercicio: 'signRecognition',
+            respuesta_correcta: isCorrect,
+            detalles: {
+                letter: correctSignLetter,
                 selectedLetter: selectedOption.dataset.letter
             }
-        });
-        document.dispatchEvent(event);
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
+            setTimeout(() => {
+                generateSignRecognition();
+            }, 1500);
+        }
     });
 }
 
@@ -343,41 +323,86 @@ function generateIncorrectSignExercise() {
         incorrectOptionsContainer.appendChild(container);
     });
 
-    checkIncorrectSignAnswerButton.addEventListener('click', () => {
+    checkIncorrectSignAnswerButton.addEventListener('click', async () => {
         const selectedOption = incorrectOptionsContainer.querySelector('img.ring-4');
         if (!selectedOption) {
-            incorrectFeedbackElement.textContent = 'Por favor, selecciona una opción';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
         const isCorrect = selectedOption.dataset.letter === incorrectLetter;
-        if (isCorrect) {
-            incorrectFeedbackElement.textContent = '¡Correcto! 🎉';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-green-500';
-            setTimeout(() => {
-                incorrectFeedbackElement.textContent = '';
-                generateIncorrectSignExercise();
-            }, 1500);
-        } else {
-            incorrectFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-red-500';
-        }
-
-        // Emitir evento de respuesta
-        const event = new CustomEvent('exerciseAnswered', {
-            detail: {
-                type: 'errorDetection',
-                isCorrect,
+        const practiceData = {
+            tipo_ejercicio: 'errorDetection',
+            respuesta_correcta: isCorrect,
+            detalles: {
                 word: incorrectWord,
                 incorrectLetter: incorrectLetter,
                 selectedLetter: selectedOption.dataset.letter
             }
-        });
-        document.dispatchEvent(event);
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
+            setTimeout(() => {
+                generateIncorrectSignExercise();
+            }, 1500);
+        }
     });
 }
 
+// Función para mostrar notificación
+function showNotification(message, isSuccess = true) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-24 right-4 p-4 rounded-lg shadow-lg transform translate-x-full transition-all duration-500 ${isSuccess ? 'bg-green-500' : 'bg-red-500'} text-white z-50`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // Animación de entrada
+    requestAnimationFrame(() => {
+        notification.style.transform = 'translateX(0)';
+    });
+
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Función para guardar práctica y mostrar notificación
+async function savePractice(data) {
+    try {
+        const response = await fetch('/backend/ejercicios/save_practice.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            if (data.respuesta_correcta) {
+                showNotification(`¡Correcto! +${result.puntos_ganados} punto${result.puntos_ganados !== 1 ? 's' : ''}`, true);
+            } else {
+                showNotification('Incorrecto. ¡Inténtalo de nuevo!', false);
+            }
+        } else {
+            console.error('Error:', result.error);
+            showNotification('Error al guardar el progreso', false);
+        }
+        
+        return result;
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error al guardar el progreso', false);
+        return null;
+    }
+}
+
+// Modificar los event listeners para usar el nuevo sistema
 document.addEventListener('DOMContentLoaded', () => {
     // Ejercicio 1: Identificar Letra
     const randomLetterElement = document.getElementById('random-letter');
@@ -418,25 +443,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    checkAnswerButton.addEventListener('click', () => {
+    checkAnswerButton.addEventListener('click', async () => {
         const selectedOption = optionsContainer.querySelector('img.ring-4');
         if (!selectedOption) {
-            feedbackElement.textContent = 'Por favor, selecciona una opción';
-            feedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
-        if (selectedOption.dataset.letter === correctLetter) {
-            feedbackElement.textContent = '¡Correcto! 🎉';
-            feedbackElement.className = 'text-lg font-medium text-green-500';
+        const isCorrect = selectedOption.dataset.letter === correctLetter;
+        const practiceData = {
+            tipo_ejercicio: 'letterIdentification',
+            respuesta_correcta: isCorrect,
+            detalles: {
+                letter: correctLetter,
+                selectedLetter: selectedOption.dataset.letter
+            }
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
             selectedOption.classList.add('scale-110');
             setTimeout(() => {
-                feedbackElement.textContent = '';
                 generateExercise();
             }, 1500);
-        } else {
-            feedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            feedbackElement.className = 'text-lg font-medium text-red-500';
         }
     });
 
@@ -497,17 +527,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    checkWordAnswerButton.addEventListener('click', () => {
-        if (selectedLetters.join('') === correctWord) {
-            wordFeedbackElement.textContent = '¡Correcto! 🎉';
-            wordFeedbackElement.className = 'text-lg font-medium text-green-500';
+    checkWordAnswerButton.addEventListener('click', async () => {
+        const isCorrect = selectedLetters.join('') === correctWord;
+        const practiceData = {
+            tipo_ejercicio: 'wordCompletion',
+            respuesta_correcta: isCorrect,
+            detalles: {
+                word: correctWord,
+                selectedWord: selectedLetters.join('')
+            }
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
             setTimeout(() => {
-                wordFeedbackElement.textContent = '';
                 generateWordExercise();
             }, 1500);
-        } else {
-            wordFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            wordFeedbackElement.className = 'text-lg font-medium text-red-500';
         }
     });
 
@@ -548,24 +584,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    checkSignAnswerButton.addEventListener('click', () => {
+    checkSignAnswerButton.addEventListener('click', async () => {
         const selectedOption = signOptionsContainer.querySelector('.bg-purple-600');
         if (!selectedOption) {
-            signFeedbackElement.textContent = 'Por favor, selecciona una opción';
-            signFeedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
-        if (selectedOption.dataset.letter === correctSignLetter) {
-            signFeedbackElement.textContent = '¡Correcto! 🎉';
-            signFeedbackElement.className = 'text-lg font-medium text-green-500';
+        const isCorrect = selectedOption.dataset.letter === correctSignLetter;
+        const practiceData = {
+            tipo_ejercicio: 'signRecognition',
+            respuesta_correcta: isCorrect,
+            detalles: {
+                letter: correctSignLetter,
+                selectedLetter: selectedOption.dataset.letter
+            }
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
             setTimeout(() => {
-                signFeedbackElement.textContent = '';
                 generateSignRecognition();
             }, 1500);
-        } else {
-            signFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            signFeedbackElement.className = 'text-lg font-medium text-red-500';
         }
     });
 
@@ -608,24 +649,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    checkIncorrectSignAnswerButton.addEventListener('click', () => {
+    checkIncorrectSignAnswerButton.addEventListener('click', async () => {
         const selectedOption = incorrectOptionsContainer.querySelector('img.ring-4');
         if (!selectedOption) {
-            incorrectFeedbackElement.textContent = 'Por favor, selecciona una opción';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-red-500';
+            showNotification('Por favor, selecciona una opción', false);
             return;
         }
 
-        if (selectedOption.dataset.letter === incorrectLetter) {
-            incorrectFeedbackElement.textContent = '¡Correcto! 🎉';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-green-500';
+        const isCorrect = selectedOption.dataset.letter === incorrectLetter;
+        const practiceData = {
+            tipo_ejercicio: 'errorDetection',
+            respuesta_correcta: isCorrect,
+            detalles: {
+                word: incorrectWord,
+                incorrectLetter: incorrectLetter,
+                selectedLetter: selectedOption.dataset.letter
+            }
+        };
+
+        await savePractice(practiceData);
+
+        if (isCorrect) {
             setTimeout(() => {
-                incorrectFeedbackElement.textContent = '';
                 generateIncorrectSignExercise();
             }, 1500);
-        } else {
-            incorrectFeedbackElement.textContent = 'Incorrecto. Intenta de nuevo';
-            incorrectFeedbackElement.className = 'text-lg font-medium text-red-500';
         }
     });
 
