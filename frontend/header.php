@@ -53,12 +53,31 @@ function getDashboardPath($rol) {
             <!-- Si el usuario está logueado -->
             <div class="flex items-center gap-x-4">
               <a href="<?php echo getDashboardPath($_SESSION['rol']); ?>" 
-                 class="text-sm font-semibold text-pink-300 hover:text-pink-400 transition">
-                Dashboard
+                 class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20 transition-all duration-300">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                <span class="text-sm font-semibold text-purple-600">Dashboard</span>
               </a>
-              <span class="text-sm font-medium text-pink-300">
-                <?php echo htmlspecialchars($_SESSION['nombre']); ?>
-              </span>
+              <div class="flex items-center gap-3 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600/10 to-pink-600/10">
+                <div class="relative">
+                  <div class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-[10px]">
+                    <?php echo strtoupper(substr($_SESSION['nombre'], 0, 1)); ?>
+                  </div>
+                  <?php if($_SESSION['rol'] === 'profesor'): ?>
+                    <div class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-purple-600 flex items-center justify-center">
+                      <svg class="w-1 h-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                  <?php endif; ?>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-900">
+                    <?php echo htmlspecialchars($_SESSION['nombre']); ?>
+                  </span>
+                </div>
+              </div>
               <a href="/backend/auth/logout.php" 
                  class="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-600 transition-all duration-300">
                 Cerrar Sesión
@@ -125,11 +144,27 @@ function getDashboardPath($rol) {
                   </svg>
                   Dashboard
                 </a>
-                <div class="px-4 py-3 text-lg font-medium text-pink-300 flex items-center">
-                  <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <?php echo htmlspecialchars($_SESSION['nombre']); ?>
+                <div class="flex items-center gap-3 px-4 py-3">
+                  <div class="relative">
+                    <div class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-[10px]">
+                      <?php echo strtoupper(substr($_SESSION['nombre'], 0, 1)); ?>
+                    </div>
+                    <?php if($_SESSION['rol'] === 'profesor'): ?>
+                      <div class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-purple-600 flex items-center justify-center">
+                        <svg class="w-1 h-1 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
+                    <?php endif; ?>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-lg font-medium text-pink-300">
+                      <?php echo htmlspecialchars($_SESSION['nombre']); ?>
+                    </span>
+                    <span class="text-sm text-pink-300/80 font-medium capitalize">
+                      <?php echo $_SESSION['rol']; ?>
+                    </span>
+                  </div>
                 </div>
                 <a href="/backend/auth/logout.php" 
                    class="block rounded-lg px-4 py-3 text-lg font-semibold text-pink-300 hover:bg-pink-300/10 transition flex items-center">

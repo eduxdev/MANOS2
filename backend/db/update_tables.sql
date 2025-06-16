@@ -71,7 +71,7 @@ ALTER TABLE usuarios
 ADD COLUMN puntos_practica INT DEFAULT 0;
 
 -- Índice para mejorar el rendimiento de las consultas de puntos
-CREATE INDEX idx_puntos_practica ON usuarios(puntos_practica);
+CREATE INDEX idx_puntos_practica ON usuarios(puntos_practica); 
 
 -- Agregar más insignias basadas en puntos
 INSERT INTO insignias (nombre, descripcion, imagen_url, requisito_puntos, requisito_ejercicios, tipo) VALUES

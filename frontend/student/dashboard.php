@@ -65,9 +65,9 @@ $query_progreso = "SELECT
             WHERE p.estudiante_id = ?
             AND p.fecha_practica >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         )
-        FROM estudiantes_asignaciones ea2 
-        WHERE ea2.estudiante_id = ? 
-        AND ea2.fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+     FROM estudiantes_asignaciones ea2 
+     WHERE ea2.estudiante_id = ? 
+     AND ea2.fecha_entrega >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         AND ea2.estado = 'completado'
     ) as ejercicios_ultima_semana
 FROM estudiantes_asignaciones ea
