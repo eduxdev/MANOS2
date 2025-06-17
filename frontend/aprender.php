@@ -251,6 +251,50 @@
                         <p id="memory-feedback" class="text-lg font-medium"></p>
                     </div>
                 </section>
+
+                <!-- Ejercicio 7: Velocidad de Señas -->
+                <section class="exercise-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Ejercicio: Velocidad de Señas</h2>
+                            <p class="text-gray-600 mt-2">¡Identifica las señas antes de que se acabe el tiempo!</p>
+                        </div>
+                        <div class="hidden md:block">
+                            <svg class="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-6 mb-6">
+                        <div class="flex justify-between items-center">
+                            <p class="text-lg font-semibold text-gray-800">
+                                Nivel: <span id="speed-level" class="text-2xl font-bold text-orange-600 ml-2">1</span>
+                            </p>
+                            <p class="text-sm text-gray-600">Puntos: <span id="speed-points" class="font-bold">0</span></p>
+                        </div>
+                    </div>
+                    <div id="speed-exercise-area" class="min-h-[200px]">
+                        <!-- El contenido del ejercicio se generará dinámicamente -->
+                    </div>
+                    <div class="mt-6 flex items-center justify-between">
+                        <div class="flex gap-3">
+                            <button id="start-speed" class="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 flex items-center justify-center space-x-2">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Iniciar Velocidad</span>
+                            </button>
+                            <button id="stop-speed" class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center space-x-2 hidden">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                <span>Detener</span>
+                            </button>
+                        </div>
+                        <p id="speed-feedback" class="text-lg font-medium"></p>
+                    </div>
+                </section>
+
             </div>
         </div>
     </main>

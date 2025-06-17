@@ -30,7 +30,9 @@ $puntos_por_tipo = [
     'signRecognition' => 1,
     'errorDetection' => 2,
     'sequenceExercise' => 3, // Base points for sequence exercise
-    'memoryExercise' => 2    // Base points for memory exercise
+    'memoryExercise' => 2,   // Base points for memory exercise
+    'phraseTranslation' => 5, // Base points for phrase translation exercise
+    'speedExercise' => 3     // Base points for speed exercise
 ];
 
 $puntos_base = $puntos_por_tipo[$tipo_ejercicio] ?? 1;
@@ -41,6 +43,11 @@ if ($tipo_ejercicio === 'sequenceExercise' && isset($data['detalles']['nivel']))
 } elseif ($tipo_ejercicio === 'memoryExercise' && isset($data['detalles']['intentos'])) {
     // Más puntos por menos intentos, mínimo 1 punto
     $puntos_base = max(1, $puntos_base * (10 - min($data['detalles']['intentos'], 8)));
+} elseif ($tipo_ejercicio === 'phraseTranslation' && isset($data['detalles']['nivel'])) {
+    $puntos_base *= $data['detalles']['nivel']; // Multiplicar por el nivel de dificultad
+} elseif ($tipo_ejercicio === 'speedExercise' && isset($data['detalles']['tiempo_limite'])) {
+    // Más puntos por menos tiempo disponible
+    $puntos_base += max(0, (5000 - $data['detalles']['tiempo_limite']) / 500);
 }
 
 $puntos_ganados = $respuesta_correcta ? $puntos_base : 0;

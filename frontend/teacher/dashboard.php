@@ -624,7 +624,9 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                 'message-modal',
                 'Confirmar eliminación',
                 '¿Estás seguro de que deseas eliminar esta asignación? Esta acción no se puede deshacer.',
-                'handleDeleteAssignment(' + assignmentId + ')'
+                function() {
+                    handleDeleteAssignment(assignmentId);
+                }
             );
         }
 
@@ -639,7 +641,9 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showMessageModal('message-modal', 'Éxito', 'Asignación eliminada correctamente', 'location.reload()');
+                    showMessageModal('message-modal', 'Éxito', 'Asignación eliminada correctamente', function() {
+                        location.reload();
+                    });
                 } else {
                     showMessageModal('message-modal', 'Error', 'Error: ' + data.message);
                 }

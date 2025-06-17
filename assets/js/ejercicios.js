@@ -21,6 +21,14 @@ let flippedCards = [];
 let matchedPairs = 0;
 let attempts = 0;
 
+// Ejercicio 7: Velocidad de Señas
+let speedLetters = [];
+let speedTimer = null;
+let speedPoints = 0;
+let speedLevel = 1;
+let speedTimeLimit = 5000; // 5 segundos iniciales
+let isSpeedExerciseActive = false; // Bandera para controlar si el ejercicio está activo
+
 // Funciones de utilidad
 function addFadeInAnimation(element, delay = 0) {
     element.style.opacity = '0';
@@ -396,10 +404,13 @@ async function savePractice(data) {
                 puntos_base = 5;
                 break;
             case 'sequenceExercise':
-                puntos_base = 10 * data.detalles.nivel; // Más puntos por nivel más alto
+                puntos_base = 10 * data.detalles.nivel;
                 break;
             case 'memoryExercise':
-                puntos_base = Math.max(20 - data.detalles.intentos, 5); // Más puntos por menos intentos
+                puntos_base = Math.max(20 - data.detalles.intentos, 5);
+                break;
+            case 'speedExercise':
+                puntos_base = 10 + Math.round((5000 - data.detalles.tiempo_limite) / 500);
                 break;
         }
 
@@ -916,6 +927,173 @@ function createSignCard(letter, size = 'normal') {
     return card;
 }
 
+
+
+// Función para generar el ejercicio de velocidad de señas
+function generateSpeedExercise() {
+    const exerciseArea = document.getElementById('speed-exercise-area');
+    exerciseArea.innerHTML = `
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="text-center mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-lg font-semibold text-gray-700">Nivel: <span id="speed-level-display" class="text-purple-600">${speedLevel}</span></p>
+                    <p class="text-lg font-semibold text-gray-700">Puntos: <span id="speed-points-display" class="text-purple-600">${speedPoints}</span></p>
+                </div>
+                <p class="text-lg font-semibold text-gray-700 mb-4">¡Selecciona la seña correcta antes de que se acabe el tiempo!</p>
+                <div class="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mb-4">
+                    <div id="speed-timer" class="absolute top-0 left-0 h-full bg-purple-600 transition-all duration-100"></div>
+                </div>
+                <h2 id="speed-letter" class="text-4xl font-bold text-purple-600"></h2>
+            </div>
+            <div id="speed-options" class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8"></div>
+            <p id="speed-feedback" class="text-lg font-medium text-center"></p>
+        </div>
+    `;
+
+    // Mostrar el botón de detener y ocultar el de iniciar
+    document.getElementById('start-speed').classList.add('hidden');
+    document.getElementById('stop-speed').classList.remove('hidden');
+    
+    isSpeedExerciseActive = true;
+    startSpeedRound();
+}
+
+function startSpeedRound() {
+    if (!isSpeedExerciseActive) return;
+    
+    if (speedTimer) clearTimeout(speedTimer);
+    
+    // Seleccionar letra aleatoria
+    const correctLetter = letters[Math.floor(Math.random() * letters.length)];
+    document.getElementById('speed-letter').textContent = correctLetter.toUpperCase();
+    
+    // Generar opciones
+    const options = [correctLetter];
+    while (options.length < 4) {
+        const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+        if (!options.includes(randomLetter)) {
+            options.push(randomLetter);
+        }
+    }
+    
+    // Mezclar opciones
+    const shuffledOptions = options.sort(() => 0.5 - Math.random());
+    
+    // Mostrar opciones
+    const optionsContainer = document.getElementById('speed-options');
+    optionsContainer.innerHTML = '';
+    shuffledOptions.forEach((letter, index) => {
+        const container = document.createElement('div');
+        container.className = 'relative group cursor-pointer';
+        
+        const img = createOptionImage(`/signs/${letter}.png`, letter, 'fade-in');
+        img.dataset.letter = letter;
+        addFadeInAnimation(img, index * 0.1);
+        
+        img.addEventListener('click', () => handleSpeedAnswer(letter, correctLetter));
+        container.appendChild(img);
+        optionsContainer.appendChild(container);
+    });
+    
+    // Iniciar temporizador con animación CSS
+    const timerBar = document.getElementById('speed-timer');
+    timerBar.style.transition = 'none';
+    timerBar.style.width = '100%';
+    
+    // Forzar reflow para reiniciar la animación
+    void timerBar.offsetWidth;
+    
+    // Iniciar animación
+    timerBar.style.transition = `width ${speedTimeLimit}ms linear`;
+    timerBar.style.width = '0%';
+    
+    // Configurar temporizador
+    speedTimer = setTimeout(() => {
+        handleSpeedAnswer(null, correctLetter);
+    }, speedTimeLimit);
+    
+    // Actualizar el feedback
+    const feedback = document.getElementById('speed-feedback');
+    if (feedback) {
+        feedback.textContent = '';
+    }
+}
+
+function stopSpeedExercise() {
+    isSpeedExerciseActive = false;
+    
+    if (speedTimer) {
+        clearTimeout(speedTimer);
+        speedTimer = null;
+    }
+    
+    // Mostrar el botón de iniciar y ocultar el de detener
+    document.getElementById('start-speed').classList.remove('hidden');
+    document.getElementById('stop-speed').classList.add('hidden');
+    
+    // Mostrar mensaje de finalización
+    const exerciseArea = document.getElementById('speed-exercise-area');
+    if (exerciseArea) {
+        exerciseArea.innerHTML = `
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8 text-center">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Ejercicio finalizado</h3>
+                <p class="text-lg text-gray-600 mb-2">Puntos obtenidos: ${speedPoints}</p>
+                <p class="text-lg text-gray-600">Nivel alcanzado: ${speedLevel}</p>
+            </div>
+        `;
+    }
+    
+    // Actualizar los contadores en la interfaz
+    document.getElementById('speed-level').textContent = speedLevel;
+    document.getElementById('speed-points').textContent = speedPoints;
+}
+
+async function handleSpeedAnswer(selectedLetter, correctLetter) {
+    if (!isSpeedExerciseActive) return;
+    
+    if (speedTimer) clearTimeout(speedTimer);
+    
+    const isCorrect = selectedLetter === correctLetter;
+    const feedback = document.getElementById('speed-feedback');
+    
+    const practiceData = {
+        tipo_ejercicio: 'speedExercise',
+        respuesta_correcta: isCorrect,
+        detalles: {
+            nivel: speedLevel,
+            letra: correctLetter,
+            tiempo_limite: speedTimeLimit
+        }
+    };
+
+    await savePractice(practiceData);
+
+    if (isCorrect) {
+        feedback.textContent = '¡Correcto!';
+        feedback.className = 'text-lg font-medium text-green-600';
+        
+        speedPoints += Math.round((speedTimeLimit / 1000) * speedLevel);
+        if (speedPoints >= speedLevel * 50) {
+            speedLevel = Math.min(5, speedLevel + 1);
+            speedTimeLimit = Math.max(2000, speedTimeLimit - 500);
+        }
+        
+        document.getElementById('speed-level-display').textContent = speedLevel;
+        document.getElementById('speed-points-display').textContent = speedPoints;
+        document.getElementById('speed-level').textContent = speedLevel;
+        document.getElementById('speed-points').textContent = speedPoints;
+    } else {
+        feedback.textContent = 'Incorrecto';
+        feedback.className = 'text-lg font-medium text-red-600';
+    }
+    
+    setTimeout(() => {
+        if (isSpeedExerciseActive) {
+            startSpeedRound();
+        }
+    }, 1000);
+}
+
 // Modificar los event listeners para usar el nuevo sistema
 document.addEventListener('DOMContentLoaded', () => {
     // Ejercicio 1: Identificar Letra
@@ -1215,6 +1393,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSequenceExercise();
     initMemoryExercise();
+    
+    // Inicializar ejercicio de velocidad
+    const speedExerciseButton = document.getElementById('start-speed');
+    if (speedExerciseButton) {
+        speedExerciseButton.addEventListener('click', generateSpeedExercise);
+    }
+
+    const stopSpeedButton = document.getElementById('stop-speed');
+    if (stopSpeedButton) {
+        stopSpeedButton.addEventListener('click', stopSpeedExercise);
+    }
 
     // Mejorar los botones de los ejercicios
     updateExerciseButtons();
@@ -1247,6 +1436,30 @@ function updateExerciseButtons() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             <span>Nuevo Juego</span>
+        `;
+    }
+
+    // Botón de traducción de frases
+    const startPhraseButton = document.getElementById('start-phrase');
+    if (startPhraseButton) {
+        startPhraseButton.className = 'px-6 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center space-x-2';
+        startPhraseButton.innerHTML = `
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <span>Iniciar Traducción</span>
+        `;
+    }
+
+    // Botón de velocidad de señas
+    const startSpeedButton = document.getElementById('start-speed');
+    if (startSpeedButton) {
+        startSpeedButton.className = 'px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg font-bold rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 flex items-center justify-center space-x-2';
+        startSpeedButton.innerHTML = `
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Iniciar Velocidad</span>
         `;
     }
 
@@ -1295,49 +1508,6 @@ function createVerificationButton(id, text) {
     return button;
 }
 
-// Actualizar las funciones que generan ejercicios para usar el nuevo estilo de botón
-function generateExercise() {
-    // ... existing code ...
-    const checkAnswerButton = createVerificationButton('check-answer', 'Verificar Respuesta');
-    // ... rest of the function ...
-}
-
-function generateWordExercise() {
-    // ... existing code ...
-    const checkWordAnswerButton = createVerificationButton('check-word-answer', 'Verificar Palabra');
-    // ... rest of the function ...
-}
-
-function generateSignRecognition() {
-    // ... existing code ...
-    const checkSignAnswerButton = createVerificationButton('check-sign-answer', 'Verificar Seña');
-    // ... rest of the function ...
-}
-
-function generateIncorrectSignExercise() {
-    // ... existing code ...
-    const checkIncorrectSignAnswerButton = createVerificationButton('check-incorrect-sign-answer', 'Verificar Selección');
-    // ... rest of the function ...
-}
-
-// Asegurarse de que los botones se actualicen cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-    // ... existing code ...
-    updateExerciseButtons();
-    
-    // Actualizar los botones cada vez que se genere un nuevo ejercicio
-    const exerciseTypes = ['exercise', 'word-exercise', 'sign-recognition', 'incorrect-sign'];
-    exerciseTypes.forEach(type => {
-        const container = document.getElementById(`${type}-container`);
-        if (container) {
-            const observer = new MutationObserver(() => {
-                updateExerciseButtons();
-            });
-            observer.observe(container, { childList: true, subtree: true });
-        }
-    });
-});
-
 // Agregar estilos CSS para la animación de escala
 function addSequenceStyles() {
     const style = document.createElement('style');
@@ -1353,9 +1523,3 @@ function addSequenceStyles() {
     `;
     document.head.appendChild(style);
 }
-
-// Inicializar estilos cuando se carga el documento
-document.addEventListener('DOMContentLoaded', () => {
-    // ... existing code ...
-    addSequenceStyles();
-});

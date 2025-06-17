@@ -15,10 +15,16 @@ function showModal($id = 'message-modal') {
             <div class="mt-2">
                 <p class="text-sm text-gray-500" id="<?php echo $id; ?>-content"></p>
             </div>
-            <div class="mt-6 flex justify-end">
+            <div class="mt-6 flex justify-end space-x-3">
+                <button type="button" 
+                        id="<?php echo $id; ?>-cancel"
+                        class="hidden inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+                        onclick="closeMessageModal('<?php echo $id; ?>', false)">
+                    Cancelar
+                </button>
                 <button type="button" 
                         class="inline-flex justify-center rounded-md border border-transparent bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
-                        onclick="closeMessageModal('<?php echo $id; ?>')">
+                        onclick="closeMessageModal('<?php echo $id; ?>', true)">
                     Aceptar
                 </button>
             </div>
@@ -58,29 +64,44 @@ function showModal($id = 'message-modal') {
     </style>
 
     <script>
-        function showMessageModal(modalId, title, message, onClose = null) {
+        function showMessageModal(modalId, title, message, onConfirm = null, showCancel = true) {
             const modal = document.getElementById(modalId);
             const titleEl = document.getElementById(modalId + '-title');
             const contentEl = document.getElementById(modalId + '-content');
+            const cancelBtn = document.getElementById(modalId + '-cancel');
             
             titleEl.textContent = title;
             contentEl.textContent = message;
+            
+            // Mostrar u ocultar el botón de cancelar según el parámetro
+            cancelBtn.style.display = showCancel ? 'inline-flex' : 'none';
+            
             modal.classList.add('show');
 
-            if (onClose) {
-                modal.dataset.onClose = onClose;
+            if (onConfirm) {
+                modal.dataset.onConfirm = typeof onConfirm === 'function' ? 'function' : onConfirm;
+                modal._onConfirm = onConfirm;
+            } else {
+                delete modal.dataset.onConfirm;
+                delete modal._onConfirm;
             }
         }
 
-        function closeMessageModal(modalId) {
+        function closeMessageModal(modalId, shouldExecuteCallback = false) {
             const modal = document.getElementById(modalId);
             modal.classList.remove('show');
             
-            if (modal.dataset.onClose) {
-                const onClose = new Function(modal.dataset.onClose);
-                onClose();
-                modal.dataset.onClose = '';
+            if (shouldExecuteCallback && modal.dataset.onConfirm) {
+                if (modal._onConfirm && typeof modal._onConfirm === 'function') {
+                    modal._onConfirm();
+                } else if (modal.dataset.onConfirm !== 'function') {
+                    const onConfirm = new Function(modal.dataset.onConfirm);
+                    onConfirm();
+                }
             }
+            
+            delete modal.dataset.onConfirm;
+            delete modal._onConfirm;
         }
     </script>
     <?php
