@@ -2,6 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputText = document.getElementById('wordInput');
     const outputDiv = document.getElementById('wordOutput');
     const translateButton = document.getElementById('translateWordButton');
+    const clearButton = document.getElementById('clearButton');
+    const suggestionsDiv = document.getElementById('suggestions');
+    const popularWordsDiv = document.getElementById('popularWords');
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalWord = document.getElementById('modalWord');
+    const closeModal = document.getElementById('closeModal');
+
     const commonWords = [
         'yo', 'tu', 'el', 'ella', 'ellos', 'nosotros', 'usted', 
         'mi', 'mio', 'tuyo', 'suyo', 'nuestro', 
@@ -9,32 +17,85 @@ document.addEventListener('DOMContentLoaded', () => {
         'todo', 'eso', 'todavia', 'tambien', 'primero', 'propio', 'nos'
     ];
 
+    // Cargar palabras populares
+    function loadPopularWords() {
+        popularWordsDiv.innerHTML = commonWords.map(word => `
+            <button 
+                class="px-3 py-1.5 text-sm bg-purple-50 text-purple-700 rounded-lg
+                       hover:bg-purple-100 transition-colors duration-200
+                       border border-purple-200 hover:border-purple-300
+                       focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                onclick="document.getElementById('wordInput').value='${word}'; document.getElementById('translateWordButton').click();"
+            >
+                ${word}
+            </button>
+        `).join('');
+    }
+
+    // Mostrar sugerencias mientras se escribe
+    function showSuggestions(input) {
+        if (!input) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        const matches = commonWords.filter(word => 
+            word.toLowerCase().includes(input.toLowerCase())
+        );
+
+        if (matches.length === 0) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        suggestionsDiv.innerHTML = matches.map(word => `
+            <div class="suggestion-item px-4 py-2 hover:bg-purple-50 cursor-pointer
+                        text-gray-700 hover:text-purple-700 transition-colors duration-200"
+                 onclick="document.getElementById('wordInput').value='${word}';
+                         document.getElementById('translateWordButton').click();">
+                ${word}
+            </div>
+        `).join('');
+
+        suggestionsDiv.classList.remove('hidden');
+    }
+
     function showLoadingState() {
         outputDiv.innerHTML = `
-            <div class="flex items-center justify-center p-8">
+            <div class="flex items-center justify-center p-8 bg-white/50 rounded-xl border-2 border-dashed border-gray-200">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                <span class="ml-2 text-gray-600">Traduciendo...</span>
+                <span class="ml-3 text-gray-600">Traduciendo...</span>
             </div>
         `;
     }
 
     function showError(message) {
         outputDiv.innerHTML = `
-            <div class="text-center p-4">
-                <div class="text-red-500 mb-2">
+            <div class="text-center p-8 bg-red-50 rounded-xl border-2 border-dashed border-red-200">
+                <div class="text-red-500 mb-4">
                     <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
                 </div>
-                <p class="text-gray-600">${message}</p>
+                <p class="text-red-600 font-medium mb-2">¡Ups! Algo salió mal</p>
+                <p class="text-red-500">${message}</p>
             </div>
         `;
     }
 
     function showNoWordFound(word) {
         return `
-            <div class="text-center p-4 mb-4 bg-gray-50 rounded-lg">
-                <p class="text-gray-500 text-sm">No se encontró traducción para: <span class="font-semibold">${word}</span></p>
+            <div class="text-center p-6 bg-yellow-50 rounded-xl border-2 border-dashed border-yellow-200 mb-4">
+                <div class="text-yellow-500 mb-4">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <p class="text-yellow-700 font-medium mb-2">Palabra no encontrada</p>
+                <p class="text-yellow-600">No se encontró traducción para: <span class="font-semibold">${word}</span></p>
+                <div class="mt-4">
+                    <p class="text-sm text-yellow-600">Prueba con alguna de las palabras sugeridas abajo</p>
+                </div>
             </div>
         `;
     }
@@ -51,11 +112,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function showSingleWordResult(word, imagePath) {
         return `
             <div class="fade-in">
-                <div class="bg-white rounded-lg shadow p-2 md:p-3 max-w-xs mx-auto mb-4">
-                    <div class="flex justify-center">
-                        <img src="${imagePath}" alt="${word}" class="w-20 md:w-24 h-auto object-contain rounded mb-2 transition-all duration-300 hover:scale-110">
+                <div class="bg-white rounded-xl shadow-lg p-4 max-w-xs mx-auto mb-4 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex justify-center mb-3">
+                        <img src="${imagePath}" 
+                             alt="${word}" 
+                             class="w-32 h-32 object-contain rounded-lg transition-all duration-300 hover:scale-110 cursor-pointer"
+                             title="Seña para: ${word}"
+                             onclick="document.getElementById('modalImage').src='${imagePath}';
+                                     document.getElementById('modalWord').textContent='${word.toUpperCase()}';
+                                     document.getElementById('imageModal').classList.remove('hidden');">
                     </div>
-                    <p class="text-center text-gray-700 text-sm font-medium">${word.toUpperCase()}</p>
+                    <div class="text-center">
+                        <p class="text-lg font-semibold text-gray-800">${word.toUpperCase()}</p>
+                        <p class="text-sm text-gray-500">Haz clic en la imagen para ampliar</p>
+                    </div>
                 </div>
             </div>
         `;
@@ -64,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function translatePhrase(phrase) {
         showLoadingState();
         
-        // Dividir la frase en palabras
         const words = phrase.trim().toLowerCase().split(/\s+/);
         
         if (words.length === 0) {
@@ -75,16 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
         let resultsHTML = '';
         let foundAtLeastOne = false;
 
-        // Título para la traducción
         resultsHTML += `
-            <div class="text-center mb-4 fade-in">
-                <h2 class="text-xl md:text-2xl font-semibold text-purple-700">Traducción de: "${phrase}"</h2>
-                <p class="text-xs text-gray-500">Mostrando imágenes para las palabras disponibles</p>
+            <div class="text-center mb-6 fade-in">
+                <h2 class="text-2xl font-semibold text-purple-700 mb-2">Traducción de: "${phrase}"</h2>
+                <p class="text-sm text-gray-500">Mostrando señas disponibles</p>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         `;
 
-        // Comprobar cada palabra
         for (const word of words) {
             const imagePath = `/signs_words/${word}.png`;
             const exists = await checkImageExists(imagePath);
@@ -92,11 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (exists) {
                 resultsHTML += `
                     <div class="fade-in">
-                        <div class="bg-white rounded-lg shadow p-2 md:p-3 mx-auto">
-                            <div class="flex justify-center">
-                                <img src="${imagePath}" alt="${word}" class="w-20 md:w-24 h-auto object-contain rounded mb-2 transition-all duration-300 hover:scale-110">
+                        <div class="bg-white rounded-xl shadow-lg p-4 hover:shadow-xl transition-all duration-300">
+                            <div class="flex justify-center mb-3">
+                                <img src="${imagePath}" 
+                                     alt="${word}" 
+                                     class="w-32 h-32 object-contain rounded-lg transition-all duration-300 hover:scale-110 cursor-pointer"
+                                     title="Seña para: ${word}"
+                                     onclick="document.getElementById('modalImage').src='${imagePath}';
+                                             document.getElementById('modalWord').textContent='${word.toUpperCase()}';
+                                             document.getElementById('imageModal').classList.remove('hidden');">
                             </div>
-                            <p class="text-center text-gray-700 text-sm font-medium">${word.toUpperCase()}</p>
+                            <div class="text-center">
+                                <p class="text-lg font-semibold text-gray-800">${word.toUpperCase()}</p>
+                                <p class="text-sm text-gray-500">Haz clic para ampliar</p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -104,13 +180,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 resultsHTML += `
                     <div class="fade-in">
-                        <div class="bg-gray-100 rounded-lg shadow p-2 md:p-3 mx-auto">
-                            <div class="flex justify-center">
-                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                        <div class="bg-gray-50 rounded-xl shadow p-4 hover:shadow-md transition-all duration-300">
+                            <div class="flex justify-center mb-3">
+                                <div class="w-32 h-32 flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
                             </div>
-                            <p class="text-center text-gray-500 text-sm font-medium">${word.toUpperCase()}</p>
+                            <div class="text-center">
+                                <p class="text-lg font-medium text-gray-400">${word.toUpperCase()}</p>
+                                <p class="text-sm text-gray-400">Seña no disponible</p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -120,15 +201,25 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsHTML += "</div>";
 
         if (!foundAtLeastOne) {
-            resultsHTML += `
-                <div class="text-center p-4 mt-4 bg-purple-50 rounded-lg">
-                    <p class="text-gray-600 text-sm mb-3">No se encontraron traducciones para ninguna palabra en esta frase.</p>
-                    <div>
-                        <p class="text-xs text-purple-600 mb-2">Palabras disponibles para traducir:</p>
+            resultsHTML = `
+                <div class="text-center p-8 bg-yellow-50 rounded-xl border-2 border-dashed border-yellow-200">
+                    <div class="text-yellow-500 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <p class="text-yellow-700 font-semibold text-lg mb-3">No se encontraron traducciones</p>
+                    <p class="text-yellow-600 mb-6">No hay señas disponibles para las palabras en esta frase.</p>
+                    <div class="bg-white rounded-lg p-6 shadow-sm">
+                        <p class="text-gray-700 font-medium mb-4">Palabras disponibles para traducir:</p>
                         <div class="flex flex-wrap justify-center gap-2">
-                            ${commonWords.slice(0, 12).map(word => `
-                                <button onclick="document.getElementById('wordInput').value='${word}'" 
-                                        class="px-2 py-1 text-xs bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-300 text-purple-600 hover:bg-purple-50">
+                            ${commonWords.map(word => `
+                                <button 
+                                    onclick="document.getElementById('wordInput').value='${word}'; document.getElementById('translateWordButton').click();"
+                                    class="px-3 py-1.5 text-sm bg-purple-50 text-purple-700 rounded-lg
+                                           hover:bg-purple-100 transition-colors duration-200
+                                           border border-purple-200 hover:border-purple-300"
+                                >
                                     ${word}
                                 </button>
                             `).join('')}
@@ -141,8 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         outputDiv.innerHTML = resultsHTML;
     }
 
+    // Event Listeners
     translateButton.addEventListener('click', () => {
         const phrase = inputText.value.trim();
+        suggestionsDiv.classList.add('hidden');
         
         if (!phrase) {
             showError('Por favor, ingresa una palabra o frase para traducir');
@@ -152,17 +245,58 @@ document.addEventListener('DOMContentLoaded', () => {
         translatePhrase(phrase);
     });
 
+    clearButton.addEventListener('click', () => {
+        inputText.value = '';
+        suggestionsDiv.classList.add('hidden');
+        outputDiv.innerHTML = `
+            <div class="text-center p-8 bg-white/50 rounded-xl border-2 border-dashed border-gray-200">
+                <div class="float">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                    </svg>
+                </div>
+                <p class="text-gray-500 mb-2">Escribe una palabra o frase para ver su traducción</p>
+                <p class="text-sm text-gray-400">Las traducciones aparecerán aquí</p>
+            </div>
+        `;
+        inputText.focus();
+    });
+
     inputText.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             translateButton.click();
         }
     });
 
-    // Sugerencias de autocompletado
-    const datalist = document.getElementById('word-suggestions');
-    commonWords.forEach(word => {
-        const option = document.createElement('option');
-        option.value = word;
-        datalist.appendChild(option);
+    inputText.addEventListener('input', (e) => {
+        showSuggestions(e.target.value);
     });
+
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!suggestionsDiv.contains(e.target) && e.target !== inputText) {
+            suggestionsDiv.classList.add('hidden');
+        }
+    });
+
+    // Modal event listeners
+    closeModal.addEventListener('click', () => {
+        imageModal.classList.add('hidden');
+    });
+
+    imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal || e.target.classList.contains('bg-black')) {
+            imageModal.classList.add('hidden');
+        }
+    });
+
+    // Cerrar modal con la tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+            imageModal.classList.add('hidden');
+        }
+    });
+
+    // Inicializar palabras populares
+    loadPopularWords();
 }); 

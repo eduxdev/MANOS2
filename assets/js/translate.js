@@ -3,80 +3,142 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = outputDiv.querySelector('.results-container');
     const emptyState = outputDiv.querySelector('.empty-state');
     const resultsScroll = resultsContainer.querySelector('.flex.overflow-x-auto');
+    const scrollLeftBtn = outputDiv.querySelector('.scroll-left');
+    const scrollRightBtn = outputDiv.querySelector('.scroll-right');
+    const convertButton = document.getElementById('convertButton');
+    const clearButton = document.getElementById('clearButton');
+    const inputText = document.getElementById('inputText');
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalWord = document.getElementById('modalWord');
+    const closeModal = document.getElementById('closeModal');
 
-    document.getElementById('convertButton').addEventListener('click', () => {
-        const inputText = document.getElementById('inputText').value;
+    // Función para mostrar el estado de carga
+    function showLoading() {
+        resultsScroll.innerHTML = `
+            <div class="w-full flex items-center justify-center p-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <span class="ml-3 text-gray-600">Traduciendo...</span>
+            </div>
+        `;
+        resultsContainer.classList.remove('hidden');
+        emptyState.style.display = 'none';
+    }
 
-        // Limpiar el área de resultados
-        resultsScroll.innerHTML = '';
+    // Función para mostrar error
+    function showError(message) {
+        resultsScroll.innerHTML = `
+            <div class="w-full text-center p-8">
+                <div class="text-red-500 mb-4">
+                    <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <p class="text-red-600 font-medium mb-2">¡Ups! Algo salió mal</p>
+                <p class="text-red-500">${message}</p>
+            </div>
+        `;
+        resultsContainer.classList.remove('hidden');
+        emptyState.style.display = 'none';
+    }
+
+    // Función para actualizar el estado de los botones de scroll
+    function updateScrollButtons() {
+        if (scrollLeftBtn && scrollRightBtn) {
+            scrollLeftBtn.disabled = resultsScroll.scrollLeft <= 0;
+            scrollRightBtn.disabled = resultsScroll.scrollLeft >= resultsScroll.scrollWidth - resultsScroll.clientWidth;
+        }
+    }
+
+    // Función para agregar una seña al output
+    function addSignToOutput(letter, imgSrc) {
+        const signContainer = document.createElement('div');
+        signContainer.className = 'sign-container fade-in';
         
-        if (!inputText.trim()) {
-            emptyState.style.display = 'block';
-            resultsContainer.classList.add('hidden');
-            emptyState.textContent = 'Por favor, ingresa un texto para traducir';
-            emptyState.style.color = 'red';
+        const img = document.createElement('img');
+        img.src = imgSrc;
+        img.alt = `Seña para: ${letter}`;
+        img.className = 'sign-image';
+        img.title = `Haz clic para ampliar`;
+        
+        // Agregar evento click para mostrar el modal
+        img.addEventListener('click', () => {
+            modalImage.src = imgSrc;
+            modalWord.textContent = letter.toUpperCase();
+            imageModal.classList.remove('hidden');
+        });
+        
+        const label = document.createElement('span');
+        label.className = 'sign-label';
+        label.textContent = letter.toUpperCase();
+        
+        signContainer.appendChild(img);
+        signContainer.appendChild(label);
+        
+        resultsScroll.appendChild(signContainer);
+        updateScrollButtons();
+    }
+
+    // Función para limpiar y reiniciar
+    function resetTranslator() {
+        inputText.value = '';
+        resultsContainer.classList.add('hidden');
+        emptyState.style.display = 'block';
+        resultsScroll.innerHTML = '';
+        inputText.focus();
+    }
+
+    // Event Listeners para los botones de scroll
+    if (scrollLeftBtn && scrollRightBtn) {
+        scrollLeftBtn.addEventListener('click', () => {
+            resultsScroll.scrollBy({ left: -200, behavior: 'smooth' });
+        });
+
+        scrollRightBtn.addEventListener('click', () => {
+            resultsScroll.scrollBy({ left: 200, behavior: 'smooth' });
+        });
+
+        resultsScroll.addEventListener('scroll', updateScrollButtons);
+    }
+
+    // Event Listener para el botón de traducir
+    convertButton.addEventListener('click', () => {
+        const text = inputText.value.trim();
+        
+        if (!text) {
+            showError('Por favor, ingresa un texto para traducir');
             return;
         }
 
+        showLoading();
+
         // Verificar si existe una imagen para la palabra completa
-        const lowerText = inputText.toLowerCase().trim();
+        const lowerText = text.toLowerCase();
         const wordImagePath = `/signs/${lowerText}.png`;
 
         const wordImage = new Image();
         wordImage.src = wordImagePath;
+        
         wordImage.onload = () => {
             // Si la imagen de la palabra completa existe, mostrarla
-            emptyState.style.display = 'none';
-            resultsContainer.classList.remove('hidden');
             resultsScroll.innerHTML = '';
-
-            const signContainer = document.createElement('div');
-            signContainer.className = 'sign-container';
-            
-            const img = document.createElement('img');
-            img.src = wordImagePath;
-            img.alt = inputText;
-            img.className = 'sign-image fade-in';
-            
-            const label = document.createElement('span');
-            label.className = 'sign-label';
-            label.textContent = inputText;
-            
-            signContainer.appendChild(img);
-            signContainer.appendChild(label);
-            resultsScroll.appendChild(signContainer);
+            addSignToOutput(text, wordImagePath);
         };
 
         wordImage.onerror = () => {
             // Si no existe imagen para la palabra completa, procesar carácter por carácter
-            emptyState.style.display = 'none';
-            resultsContainer.classList.remove('hidden');
             resultsScroll.innerHTML = '';
-
-            for (const char of inputText) {
+            
+            for (const char of text) {
                 const lowerChar = char.toLowerCase();
                 if (/^[a-z]$/.test(lowerChar)) {
+                    addSignToOutput(char, `/signs/${lowerChar}.png`);
+                } else if (char !== ' ') {
                     const signContainer = document.createElement('div');
-                    signContainer.className = 'sign-container';
-                    
-                    const img = document.createElement('img');
-                    img.src = `/signs/${lowerChar}.png`;
-                    img.alt = `Seña para: ${char}`;
-                    img.className = 'sign-image fade-in';
-                    
-                    const label = document.createElement('span');
-                    label.className = 'sign-label';
-                    label.textContent = char.toUpperCase();
-                    
-                    signContainer.appendChild(img);
-                    signContainer.appendChild(label);
-                    resultsScroll.appendChild(signContainer);
-                } else {
-                    const signContainer = document.createElement('div');
-                    signContainer.className = 'sign-container';
+                    signContainer.className = 'sign-container fade-in';
                     
                     const span = document.createElement('span');
-                    span.className = 'sign-label text-red-500 text-2xl font-bold';
+                    span.className = 'text-2xl font-bold text-gray-400';
                     span.textContent = char;
                     
                     signContainer.appendChild(span);
@@ -84,5 +146,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         };
+    });
+
+    // Event Listener para el botón de limpiar
+    clearButton.addEventListener('click', resetTranslator);
+
+    // Event Listener para la tecla Enter
+    inputText.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            convertButton.click();
+        }
+    });
+
+    // Event Listeners para el modal
+    closeModal.addEventListener('click', () => {
+        imageModal.classList.add('hidden');
+    });
+
+    imageModal.addEventListener('click', (e) => {
+        if (e.target === imageModal || e.target.classList.contains('bg-black')) {
+            imageModal.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+            imageModal.classList.add('hidden');
+        }
     });
 }); 
