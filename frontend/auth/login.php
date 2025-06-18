@@ -13,6 +13,15 @@ if(isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talk Hands - Iniciar Sesión</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-out {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade-out.hide {
+            opacity: 0;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
     <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -30,6 +39,24 @@ if(isset($_SESSION['user_id'])) {
 
             <!-- Formulario de login -->
             <form class="mt-8 space-y-6" action="/backend/auth/login_process.php" method="POST">
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div id="error-message" class="rounded-md bg-red-50 p-4 mb-4 fade-out">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-red-800">
+                                    <?php echo $_SESSION['error']; ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+
                 <div class="rounded-md shadow-sm space-y-4">
                     <div>
                         <label for="email" class="sr-only">Correo electrónico</label>
@@ -81,11 +108,17 @@ if(isset($_SESSION['user_id'])) {
     </div>
 
     <script>
-        // Mostrar mensajes de error si existen
-        <?php if(isset($_SESSION['error'])): ?>
-            alert('<?php echo $_SESSION['error']; ?>');
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+        // Desvanecer el mensaje de error después de 3 segundos
+        const errorMessage = document.getElementById('error-message');
+        if (errorMessage) {
+            setTimeout(() => {
+                errorMessage.classList.add('hide');
+                // Remover el elemento después de que termine la animación
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 500);
+            }, 3000);
+        }
     </script>
 </body>
 </html> 
