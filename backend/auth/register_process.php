@@ -2,83 +2,110 @@
 session_start();
 require_once '../db/conection.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitizar y validar datos
-    $nombre = filter_var($_POST['nombre'], FILTER_SANITIZE_STRING);
-    $apellidos = filter_var($_POST['apellidos'], FILTER_SANITIZE_STRING);
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    $rol = $_POST['rol'];
-    
-    // Validaciones básicas
-    if (empty($nombre) || empty($apellidos) || empty($email) || empty($password) || empty($rol)) {
-        $_SESSION['error'] = "Por favor, completa todos los campos obligatorios.";
-        header("Location: /frontend/auth/register.php");
-        exit();
-    }
+// Función para validar el email
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
+}
 
-    if ($password !== $confirm_password) {
-        $_SESSION['error'] = "Las contraseñas no coinciden.";
-        header("Location: /frontend/auth/register.php");
-        exit();
-    }
+// Función para sanitizar inputs
+function sanitizeInput($data) {
+    return htmlspecialchars(strip_tags(trim($data)));
+}
 
-    // Verificar si el correo ya existe
-    $check_email = "SELECT id FROM usuarios WHERE email = ?";
-    $stmt = mysqli_prepare($conexion, $check_email);
-    mysqli_stmt_bind_param($stmt, "s", $email);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+// Verificar que sea una petición POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $_SESSION['error'] = 'Método de solicitud no válido';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-    if (mysqli_num_rows($result) > 0) {
-        $_SESSION['error'] = "Ya existe una cuenta con ese correo electrónico.";
-        header("Location: /frontend/auth/register.php");
-        exit();
-    }
+// Obtener y sanitizar datos del formulario
+$nombre = sanitizeInput($_POST['nombre']);
+$apellidos = sanitizeInput($_POST['apellidos']);
+$email = sanitizeInput($_POST['email']);
+$password = $_POST['password'];
+$confirm_password = $_POST['confirm_password'];
+$rol = sanitizeInput($_POST['rol']);
+$grado = isset($_POST['grado']) ? sanitizeInput($_POST['grado']) : null;
+$grupo = isset($_POST['grupo']) ? sanitizeInput($_POST['grupo']) : null;
 
-    // Obtener el ID del rol
-    $get_rol_id = "SELECT id FROM roles WHERE nombre = ?";
-    $stmt = mysqli_prepare($conexion, $get_rol_id);
-    mysqli_stmt_bind_param($stmt, "s", $rol);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $rol_data = mysqli_fetch_assoc($result);
+// Validaciones
+if (empty($nombre) || empty($apellidos) || empty($email) || empty($password) || empty($rol)) {
+    $_SESSION['error'] = 'Todos los campos son obligatorios';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-    if (!$rol_data) {
-        $_SESSION['error'] = "Rol no válido.";
-        header("Location: /frontend/auth/register.php");
-        exit();
-    }
+if (!isValidEmail($email)) {
+    $_SESSION['error'] = 'El correo electrónico no es válido';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-    $rol_id = $rol_data['id'];
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+if (strlen($password) < 6) {
+    $_SESSION['error'] = 'La contraseña debe tener al menos 6 caracteres';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-    // Preparar la consulta de inserción
-    if ($rol === 'estudiante') {
-        $grado = $_POST['grado'] ?? null;
-        $grupo = $_POST['grupo'] ?? null;
+if ($password !== $confirm_password) {
+    $_SESSION['error'] = 'Las contraseñas no coinciden';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-        $query = "INSERT INTO usuarios (nombre, apellidos, email, password, rol_id, grado, grupo) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conexion, $query);
-        mysqli_stmt_bind_param($stmt, "sssssss", $nombre, $apellidos, $email, $hashed_password, $rol_id, $grado, $grupo);
-    } else {
-        $query = "INSERT INTO usuarios (nombre, apellidos, email, password, rol_id) 
-                 VALUES (?, ?, ?, ?, ?)";
-        $stmt = mysqli_prepare($conexion, $query);
-        mysqli_stmt_bind_param($stmt, "ssssi", $nombre, $apellidos, $email, $hashed_password, $rol_id);
-    }
+// Validar que el rol sea estudiante o profesor
+if ($rol !== 'estudiante' && $rol !== 'profesor') {
+    $_SESSION['error'] = 'Rol no válido';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
 
-    // Ejecutar la inserción
-    if (mysqli_stmt_execute($stmt)) {
-        $_SESSION['success'] = "Cuenta creada exitosamente. Por favor, inicia sesión.";
-        header("Location: /frontend/auth/login.php");
-        exit();
-    } else {
-        $_SESSION['error'] = "Error al crear la cuenta. Por favor, intenta nuevamente.";
-        header("Location: /frontend/auth/register.php");
+// Validaciones adicionales para estudiantes
+if ($rol === 'estudiante') {
+    if (empty($grado) || empty($grupo)) {
+        $_SESSION['error'] = 'El grado y grupo son obligatorios para estudiantes';
+        header('Location: ../../frontend/auth/register.php');
         exit();
     }
 }
+
+// Verificar si el email ya existe
+$stmt = mysqli_prepare($conexion, "SELECT id FROM usuarios WHERE email = ?");
+mysqli_stmt_bind_param($stmt, "s", $email);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+
+if (mysqli_num_rows($result) > 0) {
+    $_SESSION['error'] = 'Este correo electrónico ya está registrado';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
+
+// Obtener el ID del rol
+$stmt = mysqli_prepare($conexion, "SELECT id FROM roles WHERE nombre = ?");
+mysqli_stmt_bind_param($stmt, "s", $rol);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$rol_id = mysqli_fetch_assoc($result)['id'];
+
+// Hash de la contraseña
+$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+// Insertar usuario
+$stmt = mysqli_prepare($conexion, "INSERT INTO usuarios (nombre, apellidos, email, password, rol_id, grado, grupo) VALUES (?, ?, ?, ?, ?, ?, ?)");
+mysqli_stmt_bind_param($stmt, "sssssss", $nombre, $apellidos, $email, $hashed_password, $rol_id, $grado, $grupo);
+
+if (mysqli_stmt_execute($stmt)) {
+    // Guardar mensaje de éxito
+    $_SESSION['success'] = '¡Cuenta creada exitosamente! Por favor, inicia sesión.';
+    header('Location: ../../frontend/auth/login.php');
+    exit();
+} else {
+    $_SESSION['error'] = 'Error al crear la cuenta. Por favor, intenta nuevamente';
+    header('Location: ../../frontend/auth/register.php');
+    exit();
+}
+
+mysqli_close($conexion);
 ?> 
