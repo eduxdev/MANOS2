@@ -411,7 +411,7 @@ async function savePractice(data) {
                 puntos_base = Math.max(20 - data.detalles.intentos, 5);
                 break;
             case 'speedExercise':
-                puntos_base = 10 + Math.round((5000 - data.detalles.tiempo_limite) / 500);
+                puntos_base = 3; // 3 puntos fijos por acierto
                 break;
         }
 
@@ -933,8 +933,7 @@ function generateSpeedExercise() {
     exerciseArea.innerHTML = `
         <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
             <div class="text-center mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <p class="text-lg font-semibold text-gray-700">Nivel: <span id="speed-level-display" class="text-purple-600">${speedLevel}</span></p>
+                <div class="flex justify-center items-center mb-4">
                     <p class="text-lg font-semibold text-gray-700">Puntos: <span id="speed-points-display" class="text-purple-600">${speedPoints}</span></p>
                 </div>
                 <p class="text-lg font-semibold text-gray-700 mb-4">¡Selecciona la seña correcta antes de que se acabe el tiempo!</p>
@@ -1035,14 +1034,17 @@ function stopSpeedExercise() {
         exerciseArea.innerHTML = `
             <div class="bg-white rounded-xl shadow-lg p-8 mb-8 text-center">
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Ejercicio finalizado</h3>
-                <p class="text-lg text-gray-600 mb-2">Puntos obtenidos: ${speedPoints}</p>
-                <p class="text-lg text-gray-600">Nivel alcanzado: ${speedLevel}</p>
+                <div class="flex items-center justify-center space-x-2">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                    <p class="text-lg text-gray-600">Puntos totales: <span class="font-bold text-purple-600">${speedPoints}</span></p>
+                </div>
             </div>
         `;
     }
     
-    // Actualizar los contadores en la interfaz
-    document.getElementById('speed-level').textContent = speedLevel;
+    // Actualizar el contador en la interfaz
     document.getElementById('speed-points').textContent = speedPoints;
 }
 
@@ -1058,27 +1060,21 @@ async function handleSpeedAnswer(selectedLetter, correctLetter) {
         tipo_ejercicio: 'speedExercise',
         respuesta_correcta: isCorrect,
         detalles: {
-            nivel: speedLevel,
             letra: correctLetter,
             tiempo_limite: speedTimeLimit
         }
     };
 
-    await savePractice(practiceData);
+    const result = await savePractice(practiceData);
 
     if (isCorrect) {
-        feedback.textContent = '¡Correcto!';
+        feedback.textContent = '¡Correcto! +3 puntos';
         feedback.className = 'text-lg font-medium text-green-600';
         
-        speedPoints += Math.round((speedTimeLimit / 1000) * speedLevel);
-        if (speedPoints >= speedLevel * 50) {
-            speedLevel = Math.min(5, speedLevel + 1);
-            speedTimeLimit = Math.max(2000, speedTimeLimit - 500);
-        }
+        // 3 puntos fijos por acierto
+        speedPoints += 3;
         
-        document.getElementById('speed-level-display').textContent = speedLevel;
         document.getElementById('speed-points-display').textContent = speedPoints;
-        document.getElementById('speed-level').textContent = speedLevel;
         document.getElementById('speed-points').textContent = speedPoints;
     } else {
         feedback.textContent = 'Incorrecto';
