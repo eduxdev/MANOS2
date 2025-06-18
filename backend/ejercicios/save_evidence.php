@@ -18,17 +18,27 @@ function logError($message, $data = null) {
     return $error;
 }
 
-// Verificar si el usuario está logueado y es estudiante
-if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
-    $error = logError('No autorizado', ['session' => $_SESSION]);
-    echo json_encode(['success' => false, 'error' => $error['message'], 'debug' => $error]);
+// Verificar si se recibió el archivo y los datos
+if (!isset($_FILES['evidence']) || !isset($_POST['data'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
     exit();
 }
 
-// Verificar si se recibió el archivo y el ID de la asignación
-if (!isset($_FILES['evidence']) || !isset($_POST['assignment_id'])) {
-    $error = logError('Faltan datos requeridos', ['files' => $_FILES, 'post' => $_POST]);
-    echo json_encode(['success' => false, 'error' => $error['message'], 'debug' => $error]);
+// Decodificar los datos JSON
+$data = json_decode($_POST['data'], true);
+if (!$data) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
+    exit();
+}
+
+// Verificar si el usuario está logueado y es estudiante
+if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
+    echo json_encode([
+        'success' => true,
+        'mensaje' => 'Para guardar evidencias y obtener puntos, necesitas iniciar sesión.'
+    ]);
     exit();
 }
 

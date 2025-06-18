@@ -5,16 +5,23 @@ require_once 'check_badges.php';
 
 header('Content-Type: application/json');
 
-// Verificar si el usuario está logueado y es estudiante
-if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
-    echo json_encode(['success' => false, 'error' => 'Acceso no autorizado']);
-    exit();
-}
-
 // Obtener y validar datos
 $data = json_decode(file_get_contents('php://input'), true);
 if (!$data || !isset($data['tipo_ejercicio']) || !isset($data['respuesta_correcta'])) {
     echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
+    exit();
+}
+
+// Verificar si el usuario está logueado y es estudiante
+if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
+    // Si no hay sesión, solo mostrar "Correcto" o "Incorrecto"
+    echo json_encode([
+        'success' => true,
+        'puntos_ganados' => 0,
+        'puntos_totales' => 0,
+        'insignias_otorgadas' => [],
+        'mensaje' => $data['respuesta_correcta'] ? "¡Correcto!" : "Incorrecto"
+    ]);
     exit();
 }
 
@@ -93,13 +100,15 @@ try {
     // Confirmar transacción
     mysqli_commit($conexion);
 
-    // Devolver respuesta exitosa
+    // Devolver respuesta exitosa con mensaje personalizado según si hay sesión
     echo json_encode([
         'success' => true,
         'puntos_ganados' => $puntos_ganados,
         'puntos_totales' => $puntos_totales,
         'insignias_otorgadas' => $insignias_otorgadas,
-        'mensaje' => $respuesta_correcta ? "¡Correcto! Has ganado $puntos_ganados punto(s)" : "Incorrecto. ¡Inténtalo de nuevo!"
+        'mensaje' => $respuesta_correcta ? 
+            ($puntos_ganados > 0 ? "¡Correcto! +{$puntos_ganados} puntos" : "¡Correcto!") : 
+            "Incorrecto"
     ]);
 
 } catch (Exception $e) {

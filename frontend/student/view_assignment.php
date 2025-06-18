@@ -80,7 +80,7 @@ $ultimo_resultado = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 ?>
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -111,10 +111,10 @@ $ultimo_resultado = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
         }
     </style>
 </head>
-<body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
+<body class="flex flex-col min-h-full">
     <?php include '../header.php'; ?>
 
-    <main class="pt-32 pb-24">
+    <main class="flex-grow pt-32 pb-24">
         <div class="container mx-auto px-4 max-w-4xl">
             <!-- Encabezado del ejercicio -->
             <div class="mb-8">

@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <footer class="bg-gradient-to-r from-blue-900 to-purple-900 text-pink-300">
+    <footer class="bg-gradient-to-r from-blue-900 to-purple-900 text-pink-300 mt-auto">
         <div class="mx-auto max-w-3xl overflow-hidden py-10 px-6 sm:py-12 lg:px-8">
             <div class="flex flex-col items-center gap-y-4">
                 <!-- Logo y título -->

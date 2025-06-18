@@ -3,13 +3,6 @@ session_start();
 require_once '../db/conection.php';
 require_once 'check_badges.php';
 
-// Verificar si el usuario está logueado y es estudiante
-if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'No autorizado']);
-    exit();
-}
-
 // Verificar si se recibió el archivo y los datos
 if (!isset($_FILES['evidence']) || !isset($_POST['data'])) {
     http_response_code(400);
@@ -22,6 +15,19 @@ $data = json_decode($_POST['data'], true);
 if (!$data) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
+    exit();
+}
+
+// Verificar si el usuario está logueado y es estudiante
+if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'estudiante') {
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'puntos_ganados' => 0,
+        'puntos_totales' => 0,
+        'insignias_otorgadas' => [],
+        'mensaje' => isset($data['respuesta_correcta']) && $data['respuesta_correcta'] ? "¡Correcto!" : "Incorrecto"
+    ]);
     exit();
 }
 
@@ -134,11 +140,15 @@ try {
     $result = mysqli_stmt_get_result($stmt);
     $puntos_totales = mysqli_fetch_assoc($result)['puntos_practica'];
 
+    // Devolver respuesta exitosa
     echo json_encode([
         'success' => true,
         'puntos_ganados' => $puntos_adicionales,
         'puntos_totales' => $puntos_totales,
-        'insignias_otorgadas' => $insignias_otorgadas
+        'insignias_otorgadas' => $insignias_otorgadas,
+        'mensaje' => isset($data['respuesta_correcta']) && $data['respuesta_correcta'] ? 
+            ($puntos_adicionales > 0 ? "¡Correcto! +{$puntos_adicionales} puntos" : "¡Correcto!") : 
+            "Incorrecto"
     ]);
 
 } catch (Exception $e) {
