@@ -84,4 +84,11 @@ INSERT INTO insignias (nombre, descripcion, imagen_url, requisito_puntos, requis
 ('Iluminado', 'Alcanzaste 3000 puntos', '/imagenes/logo2.png', 3000, 0, 'puntos'),
 ('Virtuoso', 'Alcanzaste 4000 puntos', '/imagenes/logo2.png', 4000, 0, 'puntos'),
 ('Gran Sabio', 'Alcanzaste 7500 puntos', '/imagenes/logo2.png', 7500, 0, 'puntos'),
-('Supremo', 'Alcanzaste 10000 puntos', '/imagenes/logo2.png', 10000, 0, 'puntos'); 
+('Supremo', 'Alcanzaste 10000 puntos', '/imagenes/logo2.png', 10000, 0, 'puntos');
+
+-- Añadir columna is_new a la tabla asignaciones
+ALTER TABLE asignaciones
+ADD COLUMN is_new BOOLEAN DEFAULT TRUE;
+
+-- Actualizar asignaciones existentes como no nuevas
+UPDATE asignaciones SET is_new = FALSE WHERE id > 0; 

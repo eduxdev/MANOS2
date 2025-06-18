@@ -70,6 +70,7 @@ $query_asignaciones = "SELECT
     a.fecha_asignacion,
     a.fecha_limite,
     a.grupo_asignado,
+    a.is_new,
     (SELECT DISTINCT u.grado 
      FROM usuarios u 
      WHERE u.grupo = a.grupo_asignado 
@@ -86,7 +87,7 @@ $query_asignaciones = "SELECT
      FROM estudiantes_asignaciones 
      WHERE asignacion_id = a.id AND estado = 'completado') as promedio_puntos
     " . $query_base . "
-    ORDER BY a.fecha_asignacion DESC
+    ORDER BY a.created_at DESC, a.id DESC
     LIMIT ? OFFSET ?";
 
 $stmt = mysqli_prepare($conexion, $query_asignaciones);
@@ -278,7 +279,15 @@ $grupos = mysqli_stmt_get_result($stmt);
             <!-- Lista de asignaciones -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-900">Lista de Asignaciones</h2>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">Lista de Asignaciones</h2>
+                            <p class="text-sm text-gray-600 mt-1">Mostrando las asignaciones más recientes primero</p>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <?php echo $total_registros; ?> asignaciones en total
+                        </div>
+                    </div>
                 </div>
 
                 <?php if (mysqli_num_rows($asignaciones) > 0): ?>
@@ -308,13 +317,25 @@ $grupos = mysqli_stmt_get_result($stmt);
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" data-is-new="<?php echo $asignacion['is_new'] ? 'true' : 'false'; ?>" data-assignment-id="<?php echo $asignacion['id']; ?>">
                                         <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                <?php echo mb_strimwidth(htmlspecialchars($asignacion['ejercicio_descripcion']), 0, 100, "..."); ?>
+                                            <div class="flex items-center">
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900 flex items-center">
+                                                        <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
+                                                        <?php if ($asignacion['is_new']): ?>
+                                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                                <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
+                                                                    <circle cx="4" cy="4" r="3"/>
+                                                                </svg>
+                                                                Nuevo
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="text-sm text-gray-500">
+                                                        <?php echo mb_strimwidth(htmlspecialchars($asignacion['ejercicio_descripcion']), 0, 100, "..."); ?>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -396,30 +417,60 @@ $grupos = mysqli_stmt_get_result($stmt);
                                     <span class="font-medium"><?php echo min($offset + $items_por_pagina, $total_registros); ?></span> de 
                                     <span class="font-medium"><?php echo $total_registros; ?></span> resultados
                                 </div>
-                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px" aria-label="Pagination">
                                     <?php if ($pagina_actual > 1): ?>
+                                        <a href="?pagina=1<?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
+                                           class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Primera</span>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7m0 0l7-7m-7 7h18" />
+                                            </svg>
+                                        </a>
                                         <a href="?pagina=<?php echo ($pagina_actual - 1); ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                             <span class="sr-only">Anterior</span>
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </a>
                                     <?php endif; ?>
 
-                                    <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                                    <?php
+                                    // Mostrar un número limitado de páginas
+                                    $rango = 2;
+                                    $inicio_rango = max(1, $pagina_actual - $rango);
+                                    $fin_rango = min($total_paginas, $pagina_actual + $rango);
+
+                                    if ($inicio_rango > 1) {
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                    }
+
+                                    for ($i = $inicio_rango; $i <= $fin_rango; $i++):
+                                    ?>
                                         <a href="?pagina=<?php echo $i; ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium <?php echo $i === $pagina_actual ? 'text-purple-600 bg-purple-50 border-purple-500' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                                           class="relative inline-flex items-center px-4 py-2 border <?php echo $i === $pagina_actual ? 'z-10 bg-purple-50 border-purple-500 text-purple-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'; ?> text-sm font-medium">
                                             <?php echo $i; ?>
                                         </a>
-                                    <?php endfor; ?>
+                                    <?php endfor;
+
+                                    if ($fin_rango < $total_paginas) {
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                    }
+                                    ?>
 
                                     <?php if ($pagina_actual < $total_paginas): ?>
                                         <a href="?pagina=<?php echo ($pagina_actual + 1); ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                                             <span class="sr-only">Siguiente</span>
-                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </a>
+                                        <a href="?pagina=<?php echo $total_paginas; ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
+                                           class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Última</span>
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                                             </svg>
                                         </a>
                                     <?php endif; ?>
@@ -490,7 +541,7 @@ $grupos = mysqli_stmt_get_result($stmt);
                         location.reload();
                     });
                 } else {
-                    showMessageModal('message-modal', 'Error', 'Error: ' + data.message);
+                    showMessageModal('message-modal', 'Error', data.message || 'Error al eliminar la asignación');
                 }
             })
             .catch(error => {
@@ -498,6 +549,24 @@ $grupos = mysqli_stmt_get_result($stmt);
                 showMessageModal('message-modal', 'Error', 'Error al procesar la solicitud');
             });
         }
+        // Marcar asignaciones como no nuevas después de ser vistas
+        document.addEventListener('DOMContentLoaded', function() {
+            const newAssignments = document.querySelectorAll('tr[data-is-new="true"]');
+            if (newAssignments.length > 0) {
+                const assignmentIds = Array.from(newAssignments).map(row => row.dataset.assignmentId);
+                
+                fetch('handle_assignment_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'mark_as_seen',
+                        assignment_ids: assignmentIds
+                    })
+                });
+            }
+        });
     </script>
 </body>
 </html> 

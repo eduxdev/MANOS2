@@ -53,64 +53,63 @@ if ($intentos < 1 || $intentos > 10) {
     sendJsonResponse(false, 'Los intentos deben estar entre 1 y 10');
 }
 
+// Obtener el tipo de ejercicio
+$query_tipo = "SELECT c.nombre as tipo 
+               FROM ejercicios e 
+               JOIN categorias_ejercicios c ON e.categoria_id = c.id 
+               WHERE e.id = ?";
+$stmt = mysqli_prepare($conexion, $query_tipo);
+mysqli_stmt_bind_param($stmt, "i", $ejercicio_id);
+mysqli_stmt_execute($stmt);
+$resultado = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+$tipo_ejercicio = $resultado['tipo'];
+
 // Iniciar transacción
 mysqli_begin_transaction($conexion);
 
 try {
-    // Crear una asignación por cada grupo seleccionado
+    // Crear asignación para cada grupo
     foreach ($grupos as $grupo) {
-        $query = "INSERT INTO asignaciones (profesor_id, ejercicio_id, grupo_asignado, fecha_asignacion, 
-                                          fecha_limite, puntos_maximos, intentos_maximos, instrucciones, estado) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'activa')";
+        // Insertar asignación
+        $query = "INSERT INTO asignaciones (
+                    profesor_id, ejercicio_id, grupo_asignado, 
+                    fecha_asignacion, fecha_limite, puntos_maximos, 
+                    intentos_maximos, instrucciones, tipo_ejercicio, is_new
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)";
         
         $stmt = mysqli_prepare($conexion, $query);
-        mysqli_stmt_bind_param($stmt, "iisssiis", 
-            $profesor_id, $ejercicio_id, $grupo, $fecha_inicio, 
-            $fecha_limite, $puntos, $intentos, $instrucciones
+        mysqli_stmt_bind_param($stmt, "iisssiiis", 
+            $profesor_id, $ejercicio_id, $grupo, 
+            $fecha_inicio, $fecha_limite, $puntos, 
+            $intentos, $instrucciones, $tipo_ejercicio
         );
         
         if (!mysqli_stmt_execute($stmt)) {
             throw new Exception("Error al crear la asignación para el grupo " . $grupo);
         }
-
-        $asignacion_id = mysqli_insert_id($conexion);
-
-        // Obtener estudiantes del grupo y crear registros en estudiantes_asignaciones
-        $query_estudiantes = "SELECT id FROM usuarios 
-                            WHERE rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')
-                            AND grupo = ?";
         
-        $stmt_estudiantes = mysqli_prepare($conexion, $query_estudiantes);
-        mysqli_stmt_bind_param($stmt_estudiantes, "s", $grupo);
-        mysqli_stmt_execute($stmt_estudiantes);
-        $result_estudiantes = mysqli_stmt_get_result($stmt_estudiantes);
-
-        // Crear registros en estudiantes_asignaciones
-        while ($estudiante = mysqli_fetch_assoc($result_estudiantes)) {
-            $query_asignar = "INSERT INTO estudiantes_asignaciones (
-                asignacion_id, 
-                estudiante_id, 
-                estado, 
-                intentos_realizados,
-                puntos_obtenidos,
-                fecha_ultimo_intento
-            ) VALUES (?, ?, 'pendiente', 0, 0, NULL)";
-            
-            $stmt_asignar = mysqli_prepare($conexion, $query_asignar);
-            mysqli_stmt_bind_param($stmt_asignar, "ii", $asignacion_id, $estudiante['id']);
-            
-            if (!mysqli_stmt_execute($stmt_asignar)) {
-                throw new Exception("Error al asignar a estudiante: " . mysqli_error($conexion));
-            }
+        $asignacion_id = mysqli_insert_id($conexion);
+        
+        // Asignar a todos los estudiantes del grupo
+        $query_estudiantes = "INSERT INTO estudiantes_asignaciones (asignacion_id, estudiante_id)
+                             SELECT ?, id FROM usuarios 
+                             WHERE rol_id = (SELECT id FROM roles WHERE nombre = 'estudiante')
+                             AND grupo = ?";
+        
+        $stmt = mysqli_prepare($conexion, $query_estudiantes);
+        mysqli_stmt_bind_param($stmt, "is", $asignacion_id, $grupo);
+        
+        if (!mysqli_stmt_execute($stmt)) {
+            throw new Exception("Error al asignar estudiantes del grupo " . $grupo);
         }
     }
-
-    // Si todo salió bien, confirmar la transacción
+    
+    // Confirmar transacción
     mysqli_commit($conexion);
     sendJsonResponse(true, 'Asignaciones creadas correctamente');
-
+    
 } catch (Exception $e) {
-    // Si algo salió mal, revertir la transacción
+    // Revertir transacción en caso de error
     mysqli_rollback($conexion);
     sendJsonResponse(false, $e->getMessage());
 } 
