@@ -98,11 +98,11 @@
                             Descubre una nueva forma de comunicarte. Nuestra plataforma te ayuda a aprender lenguaje de señas de manera divertida y efectiva.
                         </p>
                         <div class="mt-8 flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center sm:justify-start">
-                            <a href="auth/register.php" 
+                            <a href="traducir.php" 
                                class="w-full sm:w-auto rounded-xl bg-purple-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 transition-all duration-300 hover:scale-105">
                                 Comienza ahora
                             </a>
-                            <a href="#features" 
+                            <a href="aprender.php" 
                                class="w-full sm:w-auto text-sm font-semibold leading-6 text-gray-100 hover:text-purple-400 transition-colors duration-300 flex items-center justify-center">
                                 Aprende más <span aria-hidden="true" class="ml-2">→</span>
                             </a>

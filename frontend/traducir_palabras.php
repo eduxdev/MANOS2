@@ -255,9 +255,9 @@
         <div class="absolute inset-0 bg-black bg-opacity-75 transition-opacity"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <div class="relative transform overflow-hidden rounded-lg bg-gray-800 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
                     <div class="absolute right-0 top-0 pr-4 pt-4">
-                        <button type="button" id="closeModal" class="rounded-md bg-white text-gray-400 hover:text-gray-500">
+                        <button type="button" id="closeModal" class="rounded-md bg-transparent text-white hover:text-gray-300">
                             <span class="sr-only">Cerrar</span>
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -270,7 +270,7 @@
                                 <img id="modalImage" src="" alt="" class="w-full h-auto max-h-[60vh] object-contain mx-auto">
                             </div>
                             <div class="mt-4 text-center">
-                                <h3 id="modalWord" class="text-xl font-semibold text-gray-900"></h3>
+                                <h3 id="modalWord" class="text-xl font-semibold text-white" style="color: #FFFFFF !important;"></h3>
                             </div>
                         </div>
                     </div>

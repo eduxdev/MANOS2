@@ -70,9 +70,10 @@
         }
 
         .sign-label {
-            @apply mt-2 text-sm font-medium text-gray-300;
+            @apply mt-2 text-sm font-medium;
             @apply whitespace-nowrap overflow-hidden text-ellipsis;
             max-width: 100%;
+            color: #FFFFFF !important;
         }
 
         @media (max-width: 768px) {

@@ -95,7 +95,8 @@ $query_asignaciones = "SELECT
     a.fecha_limite,
     ea.estado,
     ea.puntos_obtenidos,
-    ea.evidencia_path
+    ea.evidencia_path,
+    ea.fue_invalidada
 FROM asignaciones a
 JOIN ejercicios e ON a.ejercicio_id = e.id
 JOIN estudiantes_asignaciones ea ON a.id = ea.asignacion_id
@@ -536,6 +537,16 @@ $insignias = mysqli_stmt_get_result($stmt);
                                         Fecha límite: <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
                                     </span>
                                     <?php if ($asignacion['estado'] === 'pendiente'): ?>
+                                        <?php if ($asignacion['fue_invalidada']): ?>
+                                            <div class="mb-2">
+                                                <span class="inline-flex items-center text-[11px] text-red-300">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                    </svg>
+                                                    Entrega invalidada
+                                                </span>
+                                            </div>
+                                        <?php endif; ?>
                                         <button onclick="openEvidenceModal(<?php echo htmlspecialchars(json_encode($asignacion)); ?>)" 
                                                class="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors">
                                             Subir evidencia

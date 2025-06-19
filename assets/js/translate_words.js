@@ -123,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                      document.getElementById('imageModal').classList.remove('hidden');">
                     </div>
                     <div class="text-center">
-                        <p class="text-lg font-semibold text-gray-200">${word.toUpperCase()}</p>
-                        <p class="text-sm text-gray-400">Haz clic en la imagen para ampliar</p>
+                        <p class="text-lg font-semibold" style="color: #FFFFFF !important;">${word.toUpperCase()}</p>
+                        <p class="text-sm" style="color: #FFFFFF !important;">Haz clic en la imagen para ampliar</p>
                     </div>
                 </div>
             </div>
@@ -146,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         resultsHTML += `
             <div class="text-center mb-6">
-                <h2 class="text-2xl font-semibold text-purple-400 mb-2">Traducción de: "${phrase}"</h2>
-                <p class="text-sm text-gray-400">Mostrando señas disponibles</p>
+                <h2 class="text-2xl font-semibold mb-2" style="color: #A78BFA !important;">Traducción de: "${phrase}"</h2>
+                <p class="text-sm" style="color: #FFFFFF !important;">Mostrando señas disponibles</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         `;
@@ -170,8 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                              document.getElementById('imageModal').classList.remove('hidden');">
                             </div>
                             <div class="text-center">
-                                <p class="text-lg font-semibold text-gray-200">${word.toUpperCase()}</p>
-                                <p class="text-sm text-gray-400">Haz clic para ampliar</p>
+                                <p class="text-lg font-semibold" style="color: #FFFFFF !important;">${word.toUpperCase()}</p>
+                                <p class="text-sm" style="color: #FFFFFF !important;">Haz clic para ampliar</p>
                             </div>
                         </div>
                     </div>
@@ -189,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </div>
                             </div>
                             <div class="text-center">
-                                <p class="text-lg font-medium text-gray-500">${word.toUpperCase()}</p>
-                                <p class="text-sm text-gray-500">Seña no disponible</p>
+                                <p class="text-lg font-medium" style="color: #6B7280 !important;">${word.toUpperCase()}</p>
+                                <p class="text-sm" style="color: #6B7280 !important;">Seña no disponible</p>
                             </div>
                         </div>
                     </div>

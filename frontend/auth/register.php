@@ -36,8 +36,8 @@ if(isset($_SESSION['user_id'])) {
         <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
     </div>
 
-    <div class="h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-md w-full space-y-8 my-4">
             <!-- Botón para regresar a inicio -->
             <div class="flex justify-start mb-4">
                 <a href="/frontend/inicio.php" class="inline-flex items-center text-gray-300 hover:text-purple-400 transition-colors">
@@ -79,11 +79,11 @@ if(isset($_SESSION['user_id'])) {
                     <?php unset($_SESSION['error']); ?>
                 <?php endif; ?>
 
-                <div class="rounded-md shadow-sm space-y-4">
+                <div class="rounded-md shadow-sm space-y-6">
                     <!-- Datos personales -->
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         <h3 class="text-lg font-medium text-gray-200">Datos personales</h3>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="nombre" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label>
                                 <input id="nombre" name="nombre" type="text" required 
@@ -139,9 +139,9 @@ if(isset($_SESSION['user_id'])) {
                     </div>
 
                     <!-- Campos específicos para estudiantes -->
-                    <div id="campos_estudiante" class="hidden space-y-2">
+                    <div id="campos_estudiante" class="hidden space-y-3">
                         <h3 class="text-lg font-medium text-gray-200">Información académica</h3>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="grado" class="block text-sm font-medium text-gray-300 mb-1">Grado</label>
                                 <select id="grado" name="grado" 

@@ -91,4 +91,8 @@ ALTER TABLE asignaciones
 ADD COLUMN is_new BOOLEAN DEFAULT TRUE;
 
 -- Actualizar asignaciones existentes como no nuevas
-UPDATE asignaciones SET is_new = FALSE WHERE id > 0; 
+UPDATE asignaciones SET is_new = FALSE WHERE id > 0;
+
+-- Agregar campo fue_invalidada a estudiantes_asignaciones
+ALTER TABLE estudiantes_asignaciones 
+ADD COLUMN fue_invalidada BOOLEAN DEFAULT FALSE; 

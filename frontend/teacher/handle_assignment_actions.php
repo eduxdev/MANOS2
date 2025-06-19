@@ -37,6 +37,48 @@ try {
         $action = isset($_POST['action']) ? $_POST['action'] : (isset($input['action']) ? $input['action'] : '');
 
         switch ($action) {
+            case 'invalidate_submission':
+                $assignment_id = isset($_POST['assignment_id']) ? intval($_POST['assignment_id']) : 0;
+                $student_id = isset($_POST['student_id']) ? intval($_POST['student_id']) : 0;
+                
+                if ($assignment_id > 0 && $student_id > 0) {
+                    // Verificar que la asignación pertenezca al profesor
+                    $query_check = "SELECT a.id, a.puntos_maximos, ea.puntos_obtenidos 
+                                  FROM asignaciones a 
+                                  JOIN estudiantes_asignaciones ea ON a.id = ea.asignacion_id 
+                                  WHERE a.id = ? AND a.profesor_id = ? AND ea.estudiante_id = ?";
+                    
+                    $stmt = mysqli_prepare($conexion, $query_check);
+                    mysqli_stmt_bind_param($stmt, "iii", $assignment_id, $_SESSION['user_id'], $student_id);
+                    mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_get_result($stmt);
+                    
+                    if ($row = mysqli_fetch_assoc($result)) {
+                        // Actualizar el estado de la entrega
+                        $query_update = "UPDATE estudiantes_asignaciones 
+                                       SET estado = 'pendiente',
+                                           evidencia_path = NULL,
+                                           fecha_entrega = NULL,
+                                           puntos_obtenidos = 0,
+                                           fue_invalidada = TRUE
+                                       WHERE asignacion_id = ? AND estudiante_id = ?";
+                        
+                        $stmt = mysqli_prepare($conexion, $query_update);
+                        mysqli_stmt_bind_param($stmt, "ii", $assignment_id, $student_id);
+                        
+                        if (mysqli_stmt_execute($stmt)) {
+                            echo json_encode(['success' => true, 'message' => 'Entrega invalidada correctamente']);
+                        } else {
+                            echo json_encode(['success' => false, 'error' => 'Error al invalidar la entrega']);
+                        }
+                    } else {
+                        echo json_encode(['success' => false, 'error' => 'No se encontró la asignación o no tienes permisos']);
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
+                }
+                break;
+
             case 'delete_assignment':
                 $assignment_id = isset($_POST['assignment_id']) ? intval($_POST['assignment_id']) : 0;
                 
