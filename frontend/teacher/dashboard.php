@@ -140,7 +140,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
     <title>Talk Hands - Dashboard Profesor</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
+<body class="bg-gray-900">
     <?php include '../header.php'; ?>
     <?php include '../components/modal.php'; ?>
     <?php showModal('message-modal'); ?>
@@ -148,16 +148,14 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
     <main class="pt-32 pb-24">
         <div class="container mx-auto px-4 max-w-7xl">
             <!-- Bienvenida y acciones rápidas -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-12">
-                <div>
-                    <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        Panel del Docente
-                    </h1>
-                    <p class="text-gray-600">
-                        Gestiona tus clases y monitorea el progreso de tus estudiantes
-                    </p>
-                </div>
-                <div class="mt-6 md:mt-0">
+            <div class="mb-12 text-center">
+                <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    ¡Bienvenid@ Profesor, <?php echo htmlspecialchars($_SESSION['nombre']); ?>!
+                </h1>
+                <p class="text-gray-300">
+                    Gestiona tus clases y monitorea el progreso de tus estudiantes
+                </p>
+                <div class="mt-6">
                     <a href="new_assignment.php" 
                        class="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,48 +169,48 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             <!-- Estadísticas generales -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 <!-- Total de estudiantes -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:scale-105 border border-gray-700">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Estudiantes</h3>
-                        <div class="text-purple-600">
+                        <h3 class="text-lg font-semibold text-gray-100">Estudiantes</h3>
+                        <div class="text-purple-400">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
                         </div>
                     </div>
-                    <div class="text-3xl font-bold text-purple-600 mb-2">
+                    <div class="text-3xl font-bold text-purple-400 mb-2">
                         <?php echo $general_stats['total_estudiantes']; ?>
                     </div>
-                    <p class="text-gray-600">Estudiantes activos</p>
+                    <p class="text-gray-300">Estudiantes activos</p>
                 </div>
 
                 <!-- Total de asignaciones -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:scale-105 border border-gray-700">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Asignaciones</h3>
-                        <div class="text-pink-600">
+                        <h3 class="text-lg font-semibold text-gray-100">Asignaciones</h3>
+                        <div class="text-pink-400">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
-                    <div class="text-3xl font-bold text-pink-600 mb-2">
+                    <div class="text-3xl font-bold text-pink-400 mb-2">
                         <?php echo $general_stats['total_asignaciones']; ?>
                     </div>
-                    <p class="text-gray-600">Total de asignaciones</p>
+                    <p class="text-gray-300">Total de asignaciones</p>
                 </div>
 
                 <!-- Tasa de completado -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:scale-105 border border-gray-700">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Tasa de Completado</h3>
-                        <div class="text-green-600">
+                        <h3 class="text-lg font-semibold text-gray-100">Tasa de Completado</h3>
+                        <div class="text-green-400">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                     </div>
-                    <div class="text-3xl font-bold text-green-600 mb-2">
+                    <div class="text-3xl font-bold text-green-400 mb-2">
                         <?php 
                         $tasa_completado = $general_stats['total_asignaciones'] > 0 
                             ? round(($general_stats['asignaciones_completadas'] / $general_stats['total_asignaciones']) * 100) 
@@ -220,47 +218,47 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                         echo $tasa_completado . '%';
                         ?>
                     </div>
-                    <p class="text-gray-600">Promedio de completado</p>
+                    <p class="text-gray-300">Promedio de completado</p>
                 </div>
             </div>
 
             <!-- Estadísticas detalladas -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Asignaciones</h3>
-                    <p class="text-3xl font-bold text-purple-600"><?php echo $assignment_stats['total_asignaciones']; ?></p>
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-100 mb-2">Total Asignaciones</h3>
+                    <p class="text-3xl font-bold text-purple-400"><?php echo $assignment_stats['total_asignaciones']; ?></p>
                 </div>
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Completadas</h3>
-                    <p class="text-3xl font-bold text-green-600"><?php echo $assignment_stats['completadas']; ?></p>
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-100 mb-2">Completadas</h3>
+                    <p class="text-3xl font-bold text-green-400"><?php echo $assignment_stats['completadas']; ?></p>
                 </div>
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Vencidas</h3>
-                    <p class="text-3xl font-bold text-red-600"><?php echo $assignment_stats['vencidas']; ?></p>
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-100 mb-2">Vencidas</h3>
+                    <p class="text-3xl font-bold text-red-400"><?php echo $assignment_stats['vencidas']; ?></p>
                 </div>
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos Otorgados</h3>
-                    <p class="text-3xl font-bold text-blue-600"><?php echo $assignment_stats['total_puntos']; ?></p>
+                <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-100 mb-2">Puntos Otorgados</h3>
+                    <p class="text-3xl font-bold text-blue-400"><?php echo $assignment_stats['total_puntos']; ?></p>
                 </div>
             </div>
 
             <!-- Estadísticas de ejercicios de práctica -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Estadísticas de Práctica</h2>
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-12 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Estadísticas de Práctica</h2>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-purple-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Ejercicios</h3>
-                        <p class="text-3xl font-bold text-purple-600"><?php echo $general_stats['total_ejercicios']; ?></p>
-                        <p class="text-sm text-gray-600 mt-2">Ejercicios realizados</p>
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Total Ejercicios</h3>
+                        <p class="text-3xl font-bold text-purple-400"><?php echo $general_stats['total_ejercicios']; ?></p>
+                        <p class="text-sm text-gray-300 mt-2">Ejercicios realizados</p>
                     </div>
-                    <div class="bg-green-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ejercicios Correctos</h3>
-                        <p class="text-3xl font-bold text-green-600"><?php echo $general_stats['ejercicios_correctos']; ?></p>
-                        <p class="text-sm text-gray-600 mt-2">Respuestas correctas</p>
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Ejercicios Correctos</h3>
+                        <p class="text-3xl font-bold text-green-400"><?php echo $general_stats['ejercicios_correctos']; ?></p>
+                        <p class="text-sm text-gray-300 mt-2">Respuestas correctas</p>
                     </div>
-                    <div class="bg-blue-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Tasa de Éxito</h3>
-                        <p class="text-3xl font-bold text-blue-600">
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Tasa de Éxito</h3>
+                        <p class="text-3xl font-bold text-blue-400">
                             <?php 
                             $tasa_exito = $general_stats['total_ejercicios'] > 0 
                                 ? round(($general_stats['ejercicios_correctos'] / $general_stats['total_ejercicios']) * 100) 
@@ -268,93 +266,93 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                             echo $tasa_exito . '%';
                             ?>
                         </p>
-                        <p class="text-sm text-gray-600 mt-2">Porcentaje de aciertos</p>
+                        <p class="text-sm text-gray-300 mt-2">Porcentaje de aciertos</p>
                     </div>
-                    <div class="bg-pink-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Práctica</h3>
-                        <p class="text-3xl font-bold text-pink-600"><?php echo $general_stats['total_puntos_practica']; ?></p>
-                        <p class="text-sm text-gray-600 mt-2">Total acumulado</p>
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Puntos de Práctica</h3>
+                        <p class="text-3xl font-bold text-pink-400"><?php echo $general_stats['total_puntos_practica']; ?></p>
+                        <p class="text-sm text-gray-300 mt-2">Total acumulado</p>
                     </div>
                 </div>
             </div>
 
             <!-- Resumen de puntos -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Resumen de Puntos</h2>
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-12 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Resumen de Puntos</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Asignaciones</h3>
-                        <p class="text-3xl font-bold text-purple-600">
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Puntos de Asignaciones</h3>
+                        <p class="text-3xl font-bold text-purple-400">
                             <?php echo $general_stats['total_puntos_asignaciones']; ?>
                         </p>
-                        <p class="text-sm text-gray-600 mt-2">Obtenidos en tareas</p>
+                        <p class="text-sm text-gray-300 mt-2">Obtenidos en tareas</p>
                     </div>
-                    <div class="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos de Práctica</h3>
-                        <p class="text-3xl font-bold text-blue-600">
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Puntos de Práctica</h3>
+                        <p class="text-3xl font-bold text-blue-400">
                             <?php echo $general_stats['total_puntos_practica']; ?>
                         </p>
-                        <p class="text-sm text-gray-600 mt-2">Obtenidos en ejercicios</p>
+                        <p class="text-sm text-gray-300 mt-2">Obtenidos en ejercicios</p>
                     </div>
-                    <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Puntos Totales</h3>
-                        <p class="text-3xl font-bold text-pink-600">
+                    <div class="bg-gray-900/50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-100 mb-2">Puntos Totales</h3>
+                        <p class="text-3xl font-bold text-pink-400">
                             <?php 
                             $total_puntos = $general_stats['total_puntos_asignaciones'] + $general_stats['total_puntos_practica'];
                             echo $total_puntos;
                             ?>
                         </p>
-                        <p class="text-sm text-gray-600 mt-2">Total acumulado</p>
+                        <p class="text-sm text-gray-300 mt-2">Total acumulado</p>
                     </div>
                 </div>
             </div>
 
             <!-- Últimas entregas -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Últimas Entregas</h2>
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-8 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Últimas Entregas</h2>
                 
                 <?php if (mysqli_num_rows($entregas) > 0): ?>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead class="bg-gray-900/50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Estudiante
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Ejercicio
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Fecha de Entrega
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Puntos
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Acciones
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="bg-gray-900/30 divide-y divide-gray-700">
                                 <?php while ($entrega = mysqli_fetch_assoc($entregas)): ?>
-                                    <tr>
+                                    <tr class="hover:bg-gray-900/50">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
+                                            <div class="text-sm font-medium text-gray-100">
                                                 <?php echo htmlspecialchars($entrega['nombre'] . ' ' . $entrega['apellidos']); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-300">
                                                 <?php echo htmlspecialchars($entrega['ejercicio']); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-300">
                                                 <?php echo date('d/m/Y H:i', strtotime($entrega['fecha_entrega'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-purple-400">
                                                 <?php echo $entrega['puntos_obtenidos']; ?>
                                             </div>
                                         </td>
@@ -363,11 +361,11 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                                 <div class="flex items-center space-x-4">
                                                     <a href="/<?php echo htmlspecialchars($entrega['evidencia_path']); ?>" 
                                                        target="_blank"
-                                                       class="text-purple-600 hover:text-purple-900">
+                                                       class="text-purple-400 hover:text-purple-300 transition-colors">
                                                         Ver evidencia
                                                     </a>
                                                     <button onclick="invalidateSubmission(<?php echo $entrega['asignacion_id']; ?>, <?php echo $entrega['estudiante_id']; ?>)"
-                                                            class="text-red-600 hover:text-red-900">
+                                                            class="text-red-400 hover:text-red-300 transition-colors">
                                                         Invalidar
                                                     </button>
                                                 </div>
@@ -379,7 +377,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="text-center text-gray-500 py-8">
+                    <div class="text-center text-gray-400 py-8">
                         <p>No hay entregas recientes.</p>
                     </div>
                 <?php endif; ?>
@@ -489,18 +487,18 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             <!-- Separador decorativo -->
             <div class="relative py-8">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-300"></div>
+                    <div class="w-full border-t border-gray-700"></div>
                 </div>
                 <div class="relative flex justify-center">
-                    <span class="bg-gradient-to-b from-white to-purple-50 px-4 text-sm font-semibold text-gray-500">
+                    <span class="bg-gray-900 px-4 text-sm font-semibold text-gray-300">
                         Ranking y Estudiantes
                     </span>
                 </div>
             </div>
 
             <!-- Ranking de estudiantes -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Top 5 Estudiantes</h2>
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-12 border border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-100 mb-6">Top 5 Estudiantes</h2>
                 <div class="grid grid-cols-1 gap-4">
                     <?php 
                     $posicion = 1;
@@ -509,48 +507,48 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                             ? round(($estudiante['ejercicios_correctos'] / $estudiante['total_ejercicios']) * 100) 
                             : 0;
                     ?>
-                        <div class="bg-gradient-to-r <?php echo $posicion === 1 ? 'from-yellow-50 to-orange-50 border-2 border-yellow-200' : 'from-purple-50 to-pink-50'; ?> rounded-xl p-6 transition-transform hover:scale-[1.02]">
+                        <div class="bg-gray-900/50 rounded-xl p-6 transition-transform hover:scale-[1.02] <?php echo $posicion === 1 ? 'border-2 border-yellow-500/50' : 'border border-gray-700'; ?>">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0 w-12 h-12 <?php echo $posicion === 1 ? 'bg-yellow-200' : 'bg-purple-200'; ?> rounded-full flex items-center justify-center">
-                                        <span class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-800' : 'text-purple-800'; ?>">
+                                    <div class="flex-shrink-0 w-12 h-12 <?php echo $posicion === 1 ? 'bg-yellow-500/20' : 'bg-purple-500/20'; ?> rounded-full flex items-center justify-center">
+                                        <span class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-400' : 'text-purple-400'; ?>">
                                             #<?php echo $posicion; ?>
                                         </span>
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-semibold text-gray-900">
+                                        <h3 class="text-lg font-semibold text-gray-100">
                                             <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
                                         </h3>
-                                        <p class="text-sm text-gray-600">
+                                        <p class="text-sm text-gray-400">
                                             Grupo <?php echo htmlspecialchars($estudiante['grupo']); ?> - 
                                             <?php echo htmlspecialchars($estudiante['grado']); ?>° Grado
                                         </p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-600' : 'text-purple-600'; ?>">
+                                    <p class="text-2xl font-bold <?php echo $posicion === 1 ? 'text-yellow-400' : 'text-purple-400'; ?>">
                                         <?php echo $estudiante['puntos_totales']; ?>
                                     </p>
-                                    <p class="text-sm text-gray-600">puntos totales</p>
+                                    <p class="text-sm text-gray-400">puntos totales</p>
                                 </div>
                             </div>
                             <div class="mt-4 grid grid-cols-3 gap-4 text-sm">
                                 <div class="text-center">
-                                    <p class="font-medium text-gray-900"><?php echo $estudiante['ejercicios_completados']; ?></p>
-                                    <p class="text-gray-600">tareas completadas</p>
+                                    <p class="font-medium text-gray-100"><?php echo $estudiante['ejercicios_completados']; ?></p>
+                                    <p class="text-gray-400">tareas completadas</p>
                                 </div>
                                 <div class="text-center">
-                                    <p class="font-medium text-gray-900"><?php echo $tasa_exito; ?>%</p>
-                                    <p class="text-gray-600">tasa de éxito</p>
+                                    <p class="font-medium text-gray-100"><?php echo $tasa_exito; ?>%</p>
+                                    <p class="text-gray-400">tasa de éxito</p>
                                 </div>
                                 <div class="text-center">
-                                    <p class="font-medium text-gray-900"><?php echo $estudiante['puntos_practica']; ?></p>
-                                    <p class="text-gray-600">puntos práctica</p>
+                                    <p class="font-medium text-gray-100"><?php echo $estudiante['puntos_practica']; ?></p>
+                                    <p class="text-gray-400">puntos práctica</p>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <a href="student_progress.php?id=<?php echo $estudiante['id']; ?>" 
-                                   class="text-sm font-medium <?php echo $posicion === 1 ? 'text-yellow-600 hover:text-yellow-700' : 'text-purple-600 hover:text-purple-700'; ?>">
+                                   class="text-sm font-medium <?php echo $posicion === 1 ? 'text-yellow-400 hover:text-yellow-300' : 'text-purple-400 hover:text-purple-300'; ?> transition-colors">
                                     Ver progreso detallado →
                                 </a>
                             </div>
@@ -563,10 +561,10 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             </div>
 
             <!-- Selector de grupo y lista de estudiantes -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-gray-700">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Estudiantes por Grupo</h2>
-                    <select id="grupo_selector" class="rounded-lg border-gray-300 text-gray-700 text-sm focus:ring-purple-500 focus:border-purple-500">
+                    <h2 class="text-2xl font-bold text-gray-100 mb-4 md:mb-0">Estudiantes por Grupo</h2>
+                    <select id="grupo_selector" class="bg-gray-900 rounded-lg border-gray-700 text-gray-300 text-sm focus:ring-purple-500 focus:border-purple-500">
                         <option value="">Seleccionar grupo</option>
                         <?php while ($grupo = mysqli_fetch_assoc($result_grupos)): ?>
                             <option value="<?php echo htmlspecialchars($grupo['grupo']); ?>">
@@ -660,7 +658,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             const listaEstudiantes = document.getElementById('lista_estudiantes');
             
             if (!grupo) {
-                listaEstudiantes.innerHTML = '<p class="text-center text-gray-500 col-span-3">Selecciona un grupo para ver sus estudiantes</p>';
+                listaEstudiantes.innerHTML = '<p class="text-center text-gray-400 col-span-3">Selecciona un grupo para ver sus estudiantes</p>';
                 return;
             }
 
@@ -672,47 +670,47 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                     
                     estudiantes.forEach(estudiante => {
                         const card = document.createElement('div');
-                        card.className = 'bg-purple-50 rounded-lg p-6';
+                        card.className = 'bg-gray-900/50 rounded-lg p-6 border border-gray-700';
                         card.innerHTML = `
                             <div class="flex items-center mb-4">
-                                <div class="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mr-3">
-                                    <span class="text-purple-700 font-semibold">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-purple-400 font-semibold">
                                         ${estudiante.nombre.charAt(0)}${estudiante.apellidos.charAt(0)}
                                     </span>
                                 </div>
                                 <div>
-                                    <h4 class="font-medium text-gray-900">${estudiante.nombre} ${estudiante.apellidos}</h4>
-                                    <p class="text-sm text-gray-500">Grupo ${estudiante.grupo}</p>
+                                    <h4 class="font-medium text-gray-100">${estudiante.nombre} ${estudiante.apellidos}</h4>
+                                    <p class="text-sm text-gray-400">Grupo ${estudiante.grupo}</p>
                                 </div>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Ejercicios de práctica:</span>
-                                    <span class="font-medium">${estudiante.ejercicios_correctos}/${estudiante.total_ejercicios}</span>
+                                    <span class="text-gray-400">Ejercicios de práctica:</span>
+                                    <span class="font-medium text-purple-400">${estudiante.ejercicios_correctos}/${estudiante.total_ejercicios}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Tareas completadas:</span>
-                                    <span class="font-medium">${estudiante.ejercicios_completados}</span>
+                                    <span class="text-gray-400">Tareas completadas:</span>
+                                    <span class="font-medium text-purple-400">${estudiante.ejercicios_completados}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Puntos de práctica:</span>
-                                    <span class="font-medium text-purple-600">${estudiante.puntos_practica}</span>
+                                    <span class="text-gray-400">Puntos de práctica:</span>
+                                    <span class="font-medium text-purple-400">${estudiante.puntos_practica}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Puntos de tareas:</span>
-                                    <span class="font-medium text-pink-600">${estudiante.puntos_asignaciones}</span>
+                                    <span class="text-gray-400">Puntos de tareas:</span>
+                                    <span class="font-medium text-pink-400">${estudiante.puntos_asignaciones}</span>
                                 </div>
-                                <div class="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-purple-100">
-                                    <span class="text-gray-700">Puntos totales:</span>
-                                    <span class="text-blue-600">${estudiante.puntos_totales}</span>
+                                <div class="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-gray-700">
+                                    <span class="text-gray-300">Puntos totales:</span>
+                                    <span class="text-blue-400">${estudiante.puntos_totales}</span>
                                 </div>
                             </div>
                             <div class="mt-4 flex justify-between items-center">
                                 <a href="student_progress.php?id=${estudiante.id}" 
-                                   class="inline-block text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                   class="inline-block text-sm text-purple-400 hover:text-purple-300 transition-colors font-medium">
                                     Ver progreso detallado →
                                 </a>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-gray-400">
                                     Tasa de éxito: ${estudiante.total_ejercicios > 0 ? Math.round((estudiante.ejercicios_correctos / estudiante.total_ejercicios) * 100) : 0}%
                                 </div>
                             </div>
