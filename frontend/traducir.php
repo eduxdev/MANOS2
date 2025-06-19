@@ -224,8 +224,8 @@
                     <div class="h-full rounded-xl bg-gradient-to-r from-purple-900/10 to-pink-900/10 p-8 ring-1 ring-purple-400/5">
                         <dt class="inline-flex items-center gap-x-3">
                             <svg class="h-6 w-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
                             <span class="text-lg font-semibold text-white">Traducción Instantánea</span>
                         </dt>
                         <dd class="mt-4 text-base leading-7 text-gray-300">
@@ -238,8 +238,8 @@
                     <div class="h-full rounded-xl bg-gradient-to-r from-blue-900/10 to-purple-900/10 p-8 ring-1 ring-purple-400/5">
                         <dt class="inline-flex items-center gap-x-3">
                             <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                            </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                        </svg>
                             <span class="text-lg font-semibold text-white">Personalizable</span>
                         </dt>
                         <dd class="mt-4 text-base leading-7 text-gray-300">
@@ -252,8 +252,8 @@
                     <div class="h-full rounded-xl bg-gradient-to-r from-pink-900/10 to-rose-900/10 p-8 ring-1 ring-purple-400/5">
                         <dt class="inline-flex items-center gap-x-3">
                             <svg class="h-6 w-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
                             <span class="text-lg font-semibold text-white">Preciso y Confiable</span>
                         </dt>
                         <dd class="mt-4 text-base leading-7 text-gray-300">
