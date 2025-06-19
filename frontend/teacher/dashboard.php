@@ -384,10 +384,10 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             </div>
 
             <!-- Últimas asignaciones -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-12 border border-gray-700">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Últimas Asignaciones</h2>
-                    <a href="assignments.php" class="text-purple-600 hover:text-purple-700 font-medium">
+                    <h2 class="text-2xl font-bold text-gray-100">Últimas Asignaciones</h2>
+                    <a href="assignments.php" class="text-purple-400 hover:text-purple-300 transition-colors font-medium">
                         Ver todas
                     </a>
                 </div>
@@ -396,37 +396,37 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
                             <thead>
-                                <tr class="border-b border-gray-200">
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <tr class="border-b border-gray-700">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Ejercicio
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Grupo y Grado
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Fecha Asignación
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Fecha Límite
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Progreso
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Acciones
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="bg-gray-900/30 divide-y divide-gray-700">
                                 <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-900/50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
+                                            <div class="text-sm font-medium text-gray-100">
                                                 <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-300">
                                                 <?php 
                                                 echo "Grupo " . htmlspecialchars($asignacion['grupo_asignado']);
                                                 if ($asignacion['grado']) {
@@ -436,18 +436,18 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
+                                            <div class="text-sm text-gray-300">
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
+                                            <div class="text-sm text-gray-300">
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div class="w-full bg-gray-700 rounded-full h-2.5">
                                                     <?php 
                                                     $porcentaje = $asignacion['total_estudiantes'] > 0 
                                                         ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
@@ -455,7 +455,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                                     ?>
                                                     <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
                                                 </div>
-                                                <span class="ml-2 text-sm text-gray-600">
+                                                <span class="ml-2 text-sm text-gray-300">
                                                     <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
                                                 </span>
                                             </div>
@@ -463,11 +463,11 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-4">
                                                 <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
-                                                   class="text-purple-600 hover:text-purple-900">
+                                                   class="text-purple-400 hover:text-purple-300 transition-colors">
                                                     Ver detalles
                                                 </a>
                                                 <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
-                                                        class="text-red-600 hover:text-red-900">
+                                                        class="text-red-400 hover:text-red-300 transition-colors">
                                                     Eliminar
                                                 </button>
                                             </div>
@@ -478,7 +478,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="text-center text-gray-500 py-8">
+                    <div class="text-center text-gray-400 py-8">
                         <p>No hay asignaciones recientes.</p>
                     </div>
                 <?php endif; ?>
