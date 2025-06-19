@@ -242,7 +242,7 @@ $insignias = mysqli_stmt_get_result($stmt);
             <!-- Bienvenida y resumen -->
             <div class="mb-12 text-center">
                 <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    ¡Bienvenido, <?php echo htmlspecialchars($_SESSION['nombre']); ?>!
+                    ¡Bienvenid@, <?php echo htmlspecialchars($_SESSION['nombre']); ?>!
                 </h1>
                 <p class="text-gray-600">
                     Continúa aprendiendo y practicando el lenguaje de señas

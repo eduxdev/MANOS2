@@ -151,7 +151,7 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
             <div class="flex flex-col md:flex-row justify-between items-center mb-12">
                 <div>
                     <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        Panel del Profesor
+                        Panel del Docente
                     </h1>
                     <p class="text-gray-600">
                         Gestiona tus clases y monitorea el progreso de tus estudiantes

@@ -21,7 +21,7 @@
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
         .gradient-text {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            background: linear-gradient(135deg, #818cf8 0%, #e879f9 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -76,7 +76,7 @@
         }
     </style>
 </head>
-<body class="bg-white">
+<body class="bg-gray-900">
     <?php include 'header.php'; ?>
 
     <!-- Hero Section -->
@@ -91,19 +91,19 @@
                 <!-- Texto del Hero -->
                 <div class="col-span-6 text-center sm:text-left">
                     <div class="fade-in" style="animation-delay: 0.2s">
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-6">
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6">
                             Aprende lenguaje de señas de forma <span class="gradient-text">interactiva</span>
                         </h1>
-                        <p class="mt-6 text-lg sm:text-xl text-gray-600 max-w-3xl">
+                        <p class="mt-6 text-lg sm:text-xl text-gray-300 max-w-3xl">
                             Descubre una nueva forma de comunicarte. Nuestra plataforma te ayuda a aprender lenguaje de señas de manera divertida y efectiva.
                         </p>
                         <div class="mt-8 flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center sm:justify-start">
                             <a href="auth/register.php" 
-                               class="w-full sm:w-auto rounded-xl bg-purple-600 px-6 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 transition-all duration-300 hover:scale-105">
+                               class="w-full sm:w-auto rounded-xl bg-purple-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500 transition-all duration-300 hover:scale-105">
                                 Comienza ahora
                             </a>
                             <a href="#features" 
-                               class="w-full sm:w-auto text-sm font-semibold leading-6 text-gray-900 hover:text-purple-600 transition-colors duration-300 flex items-center justify-center">
+                               class="w-full sm:w-auto text-sm font-semibold leading-6 text-gray-100 hover:text-purple-400 transition-colors duration-300 flex items-center justify-center">
                                 Aprende más <span aria-hidden="true" class="ml-2">→</span>
                             </a>
                         </div>
@@ -167,7 +167,7 @@
 
         <!-- Scroll Down Indicator -->
         <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-center hidden sm:block">
-            <a href="#features" class="scroll-down inline-flex flex-col items-center text-gray-500 hover:text-purple-600 transition-colors duration-300">
+            <a href="#features" class="scroll-down inline-flex flex-col items-center text-gray-400 hover:text-purple-400 transition-colors duration-300">
                 <span class="text-sm font-medium mb-2">Descubre más</span>
                 <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -182,14 +182,14 @@
     </div>
 
     <!-- Features Section -->
-    <div id="features" class="bg-white py-24 sm:py-32">
+    <div id="features" class="bg-gray-900 py-24 sm:py-32">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mx-auto max-w-2xl lg:text-center fade-in" style="animation-delay: 0.4s">
-                <h2 class="text-base font-semibold leading-7 text-purple-600">Explora más</h2>
-                <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                <h2 class="text-base font-semibold leading-7 text-purple-400">Explora más</h2>
+                <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
                     Todo lo que necesitas para aprender lenguaje de señas
                 </p>
-                <p class="mt-6 text-lg leading-8 text-gray-600">
+                <p class="mt-6 text-lg leading-8 text-gray-300">
                     Descubre herramientas, recursos y guías para dominar el lenguaje de señas y conectar con una comunidad inclusiva.
                 </p>
             </div>
@@ -197,45 +197,45 @@
             <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
                 <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
                     <!-- Tarjeta 1 -->
-                    <div class="feature-card rounded-2xl bg-white p-1">
-                        <div class="h-full rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 p-8 ring-1 ring-purple-900/5">
+                    <div class="feature-card rounded-2xl bg-gray-800 p-1">
+                        <div class="h-full rounded-xl bg-gradient-to-r from-purple-900/10 to-pink-900/10 p-8 ring-1 ring-purple-400/5">
                             <dt class="inline-flex items-center gap-x-3">
-                                <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
                                 </svg>
-                                <span class="text-lg font-semibold text-gray-900">Aprende a tu ritmo</span>
+                                <span class="text-lg font-semibold text-white">Aprende a tu ritmo</span>
                             </dt>
-                            <dd class="mt-4 text-base leading-7 text-gray-600">
+                            <dd class="mt-4 text-base leading-7 text-gray-300">
                                 Accede a recursos interactivos y guías paso a paso para dominar el lenguaje de señas a tu propio ritmo.
                             </dd>
                         </div>
                     </div>
 
                     <!-- Tarjeta 2 -->
-                    <div class="feature-card rounded-2xl bg-white p-1">
-                        <div class="h-full rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 p-8 ring-1 ring-purple-900/5">
+                    <div class="feature-card rounded-2xl bg-gray-800 p-1">
+                        <div class="h-full rounded-xl bg-gradient-to-r from-blue-900/10 to-purple-900/10 p-8 ring-1 ring-purple-400/5">
                             <dt class="inline-flex items-center gap-x-3">
-                                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
-                                <span class="text-lg font-semibold text-gray-900">Comunidad activa</span>
+                                <span class="text-lg font-semibold text-white">Comunidad activa</span>
                             </dt>
-                            <dd class="mt-4 text-base leading-7 text-gray-600">
+                            <dd class="mt-4 text-base leading-7 text-gray-300">
                                 Únete a una comunidad vibrante de estudiantes y profesores comprometidos con el aprendizaje del lenguaje de señas.
                             </dd>
                         </div>
                     </div>
 
                     <!-- Tarjeta 3 -->
-                    <div class="feature-card rounded-2xl bg-white p-1">
-                        <div class="h-full rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 p-8 ring-1 ring-purple-900/5">
+                    <div class="feature-card rounded-2xl bg-gray-800 p-1">
+                        <div class="h-full rounded-xl bg-gradient-to-r from-pink-900/10 to-rose-900/10 p-8 ring-1 ring-purple-400/5">
                             <dt class="inline-flex items-center gap-x-3">
-                                <svg class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <svg class="h-6 w-6 text-pink-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.7c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.7c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
                                 </svg>
-                                <span class="text-lg font-semibold text-gray-900">Logros y progreso</span>
+                                <span class="text-lg font-semibold text-white">Logros y progreso</span>
                             </dt>
-                            <dd class="mt-4 text-base leading-7 text-gray-600">
+                            <dd class="mt-4 text-base leading-7 text-gray-300">
                                 Gana insignias, sigue tu progreso y celebra tus logros mientras dominas nuevas habilidades.
                             </dd>
                         </div>
