@@ -37,10 +37,24 @@ if ($filtro_grupo) {
 }
 
 if ($filtro_estado) {
-    if ($filtro_estado === 'pendiente') {
-        $query_base .= " AND a.fecha_limite >= CURDATE()";
+    if ($filtro_estado === 'completado') {
+        $query_base .= " AND EXISTS (
+            SELECT 1 FROM estudiantes_asignaciones ea 
+            WHERE ea.asignacion_id = a.id 
+            AND ea.estado = 'completado'
+        )";
+    } elseif ($filtro_estado === 'pendiente') {
+        $query_base .= " AND a.fecha_limite >= CURDATE() AND NOT EXISTS (
+            SELECT 1 FROM estudiantes_asignaciones ea 
+            WHERE ea.asignacion_id = a.id 
+            AND ea.estado = 'completado'
+        )";
     } elseif ($filtro_estado === 'vencido') {
-        $query_base .= " AND a.fecha_limite < CURDATE()";
+        $query_base .= " AND a.fecha_limite < CURDATE() AND NOT EXISTS (
+            SELECT 1 FROM estudiantes_asignaciones ea 
+            WHERE ea.asignacion_id = a.id 
+            AND ea.estado = 'completado'
+        )";
     }
 }
 
@@ -151,29 +165,29 @@ $grupos = mysqli_stmt_get_result($stmt);
             </div>
 
             <!-- Filtros -->
-            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
-                <div class="flex items-center mb-6">
-                    <svg class="w-6 h-6 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-4 md:p-6 mb-8 border border-gray-700">
+                <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-100">Filtros de Búsqueda</h2>
-                        <p class="text-sm text-gray-400 mt-1">Utiliza los filtros para encontrar asignaciones específicas</p>
+                        <h2 class="text-lg md:text-xl font-bold text-gray-100">Filtros de Búsqueda</h2>
+                        <p class="text-xs md:text-sm text-gray-400 mt-1">Utiliza los filtros para encontrar asignaciones específicas</p>
                     </div>
                 </div>
 
-                <form action="" method="GET" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <form action="" method="GET">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                         <!-- Filtro de Grupo -->
-                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
-                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 rounded-lg border border-gray-700">
+                            <label class="flex items-center text-xs md:text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                                 Grupo
                             </label>
-                            <select name="grupo" class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
-                                <option value="">Todos los grupos</option>
+                            <select name="grupo" class="w-full text-xs md:text-sm rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
+                                <option value="">Todos</option>
                                 <?php while ($grupo = mysqli_fetch_assoc($grupos)): ?>
                                     <option value="<?php echo htmlspecialchars($grupo['grupo_asignado']); ?>"
                                             <?php echo $filtro_grupo === $grupo['grupo_asignado'] ? 'selected' : ''; ?>
@@ -185,90 +199,93 @@ $grupos = mysqli_stmt_get_result($stmt);
                         </div>
 
                         <!-- Filtro de Estado -->
-                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
-                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 rounded-lg border border-gray-700">
+                            <label class="flex items-center text-xs md:text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Estado
                             </label>
-                            <select name="estado" class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
-                                <option value="" class="bg-gray-900">Todos los estados</option>
+                            <select name="estado" class="w-full text-xs md:text-sm rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
+                                <option value="" class="bg-gray-900">Todos</option>
+                                <option value="completado" <?php echo $filtro_estado === 'completado' ? 'selected' : ''; ?> class="bg-gray-900">
+                                    ✅ Completadas
+                                </option>
                                 <option value="pendiente" <?php echo $filtro_estado === 'pendiente' ? 'selected' : ''; ?> class="bg-gray-900">
                                     ⏳ Pendientes
                                 </option>
                                 <option value="vencido" <?php echo $filtro_estado === 'vencido' ? 'selected' : ''; ?> class="bg-gray-900">
-                                    ⚠️ Vencidos
+                                    ⚠️ Vencidas
                                 </option>
                             </select>
                         </div>
 
                         <!-- Filtro de Fecha Desde -->
-                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
-                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 rounded-lg border border-gray-700">
+                            <label class="flex items-center text-xs md:text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Fecha desde
+                                Desde
                             </label>
                             <div class="relative">
                                 <input type="date" name="fecha_desde" value="<?php echo $filtro_fecha_desde; ?>"
-                                       class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-10">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-400 sm:text-sm">📅</span>
+                                       class="w-full text-xs md:text-sm rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-8">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 text-xs md:text-sm">📅</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Filtro de Fecha Hasta -->
-                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
-                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 rounded-lg border border-gray-700">
+                            <label class="flex items-center text-xs md:text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Fecha hasta
+                                Hasta
                             </label>
                             <div class="relative">
                                 <input type="date" name="fecha_hasta" value="<?php echo $filtro_fecha_hasta; ?>"
-                                       class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-10">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-400 sm:text-sm">📅</span>
+                                       class="w-full text-xs md:text-sm rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-8">
+                                <div class="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 text-xs md:text-sm">📅</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Botones de acción -->
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+                    <div class="flex justify-end items-center gap-3 mt-4 pt-4 border-t border-gray-700">
                         <a href="assignments.php" 
-                           class="inline-flex items-center px-4 py-2 border border-gray-700 shadow-sm text-sm font-medium rounded-lg text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           class="inline-flex items-center px-3 md:px-4 py-2 border border-gray-700 shadow-sm text-xs md:text-sm font-medium rounded-lg text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
+                            <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            Limpiar filtros
+                            Limpiar
                         </a>
                         <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-4 md:px-6 py-2 border border-transparent shadow-sm text-xs md:text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
+                            <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
-                            Aplicar filtros
+                            Aplicar
                         </button>
                     </div>
 
                     <?php if ($filtro_grupo || $filtro_estado || $filtro_fecha_desde || $filtro_fecha_hasta): ?>
-                    <div class="mt-4 flex items-center bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
-                        <svg class="w-5 h-5 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mt-4 flex items-center bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 rounded-lg border border-gray-700">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-sm text-gray-300">
+                        <span class="text-xs md:text-sm text-gray-300">
                             Filtros activos:
                             <?php
                             $filtros_activos = [];
                             if ($filtro_grupo) $filtros_activos[] = "Grupo " . $filtro_grupo;
                             if ($filtro_estado) $filtros_activos[] = ucfirst($filtro_estado);
-                            if ($filtro_fecha_desde) $filtros_activos[] = "Desde " . date('d/m/Y', strtotime($filtro_fecha_desde));
-                            if ($filtro_fecha_hasta) $filtros_activos[] = "Hasta " . date('d/m/Y', strtotime($filtro_fecha_hasta));
+                            if ($filtro_fecha_desde) $filtros_activos[] = "Desde " . date('d/m/y', strtotime($filtro_fecha_desde));
+                            if ($filtro_fecha_hasta) $filtros_activos[] = "Hasta " . date('d/m/y', strtotime($filtro_fecha_hasta));
                             echo implode(" • ", $filtros_activos);
                             ?>
                         </span>

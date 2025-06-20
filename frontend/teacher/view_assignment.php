@@ -221,64 +221,64 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
                             <div class="overflow-hidden">
                                 <table class="min-w-full divide-y divide-gray-700">
                                     <thead class="bg-gray-900/50">
-                                        <tr>
+                            <tr>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                Estudiante
-                                            </th>
+                                    Estudiante
+                                </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                Estado
-                                            </th>
+                                    Estado
+                                </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                Fecha de Entrega
-                                            </th>
+                                    Fecha de Entrega
+                                </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                Puntos
-                                            </th>
+                                    Puntos
+                                </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                Evidencia
-                                            </th>
-                                        </tr>
-                                    </thead>
+                                    Evidencia
+                                </th>
+                            </tr>
+                        </thead>
                                     <tbody class="bg-gray-900/30 divide-y divide-gray-700">
-                                        <?php foreach ($estudiantes_data as $estudiante): ?>
+                                <?php foreach ($estudiantes_data as $estudiante): ?>
                                             <tr class="hover:bg-gray-700/50">
                                                 <td class="px-3 py-4 whitespace-normal">
                                                     <div class="text-sm font-medium text-gray-100">
-                                                        <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
-                                                    </div>
-                                                </td>
+                                                <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
+                                            </div>
+                                        </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
-                                                    <?php if ($estudiante['estado'] === 'completado'): ?>
+                                            <?php if ($estudiante['estado'] === 'completado'): ?>
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300 border border-green-700">
-                                                            Completado
-                                                        </span>
-                                                    <?php elseif ($estudiante['estado'] === 'pendiente'): ?>
+                                                    Completado
+                                                </span>
+                                            <?php elseif ($estudiante['estado'] === 'pendiente'): ?>
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300 border border-yellow-700">
-                                                            Pendiente
-                                                        </span>
-                                                    <?php else: ?>
+                                                    Pendiente
+                                                </span>
+                                            <?php else: ?>
                                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-800/50 text-gray-300 border border-gray-600">
-                                                            Sin iniciar
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </td>
+                                                    Sin iniciar
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
-                                                        <?php echo $estudiante['fecha_entrega'] 
+                                                <?php echo $estudiante['fecha_entrega'] 
                                                             ? date('d/m/y H:i', strtotime($estudiante['fecha_entrega']))
-                                                            : '-'; ?>
-                                                    </div>
-                                                </td>
+                                                    : '-'; ?>
+                                            </div>
+                                        </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
-                                                        <?php echo $estudiante['puntos_obtenidos'] ?? '-'; ?>
-                                                    </div>
-                                                </td>
+                                                <?php echo $estudiante['puntos_obtenidos'] ?? '-'; ?>
+                                            </div>
+                                        </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
-                                                    <?php if ($estudiante['evidencia_path']): ?>
+                                            <?php if ($estudiante['evidencia_path']): ?>
                                                         <div class="flex items-center gap-3">
-                                                            <a href="/<?php echo htmlspecialchars($estudiante['evidencia_path']); ?>" 
-                                                               target="_blank"
+                                                <a href="/<?php echo htmlspecialchars($estudiante['evidencia_path']); ?>" 
+                                                   target="_blank"
                                                                class="text-purple-400 hover:text-purple-300 transition-colors text-sm">
                                                                 Ver
                                                             </a>
@@ -289,15 +289,15 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
                                                                 </button>
                                                             <?php endif; ?>
                                                         </div>
-                                                    <?php else: ?>
+                                            <?php else: ?>
                                                         <span class="text-gray-600">-</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -306,7 +306,7 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
     </main>
 
     <footer class="mt-auto">
-        <?php include '../footer.php'; ?>
+    <?php include '../footer.php'; ?>
     </footer>
 
     <script>
