@@ -120,7 +120,7 @@ $grupos = mysqli_stmt_get_result($stmt);
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 </head>
-<body class="flex flex-col min-h-full bg-gradient-to-b from-white to-purple-50">
+<body class="flex flex-col min-h-full bg-gray-900">
     <?php include '../header.php'; ?>
     <?php include '../components/modal.php'; ?>
     <?php showModal('message-modal'); ?>
@@ -130,12 +130,12 @@ $grupos = mysqli_stmt_get_result($stmt);
             <!-- Encabezado y navegación -->
             <div class="mb-8">
                 <div class="flex items-center gap-4 mb-4">
-                    <a href="dashboard.php" class="text-purple-600 hover:text-purple-700">
+                    <a href="dashboard.php" class="text-purple-400 hover:text-purple-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </a>
-                    <h1 class="text-3xl font-bold text-gray-900">
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                         Todas las Asignaciones
                     </h1>
                 </div>
@@ -151,32 +151,33 @@ $grupos = mysqli_stmt_get_result($stmt);
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
                 <div class="flex items-center mb-6">
-                    <svg class="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
                     <div>
-                        <h2 class="text-xl font-bold text-gray-900">Filtros de Búsqueda</h2>
-                        <p class="text-sm text-gray-500 mt-1">Utiliza los filtros para encontrar asignaciones específicas</p>
+                        <h2 class="text-xl font-bold text-gray-100">Filtros de Búsqueda</h2>
+                        <p class="text-sm text-gray-400 mt-1">Utiliza los filtros para encontrar asignaciones específicas</p>
                     </div>
                 </div>
 
                 <form action="" method="GET" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <!-- Filtro de Grupo -->
-                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <label class="flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
+                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                                 Grupo
                             </label>
-                            <select name="grupo" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 transition-colors bg-white">
+                            <select name="grupo" class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
                                 <option value="">Todos los grupos</option>
                                 <?php while ($grupo = mysqli_fetch_assoc($grupos)): ?>
                                     <option value="<?php echo htmlspecialchars($grupo['grupo_asignado']); ?>"
-                                            <?php echo $filtro_grupo === $grupo['grupo_asignado'] ? 'selected' : ''; ?>>
+                                            <?php echo $filtro_grupo === $grupo['grupo_asignado'] ? 'selected' : ''; ?>
+                                            class="bg-gray-900">
                                         Grupo <?php echo htmlspecialchars($grupo['grupo_asignado']); ?>
                                     </option>
                                 <?php endwhile; ?>
@@ -184,70 +185,70 @@ $grupos = mysqli_stmt_get_result($stmt);
                         </div>
 
                         <!-- Filtro de Estado -->
-                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <label class="flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
+                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Estado
                             </label>
-                            <select name="estado" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 transition-colors bg-white">
-                                <option value="">Todos los estados</option>
-                                <option value="pendiente" <?php echo $filtro_estado === 'pendiente' ? 'selected' : ''; ?>>
-                                    <span>⏳ Pendientes</span>
+                            <select name="estado" class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors">
+                                <option value="" class="bg-gray-900">Todos los estados</option>
+                                <option value="pendiente" <?php echo $filtro_estado === 'pendiente' ? 'selected' : ''; ?> class="bg-gray-900">
+                                    ⏳ Pendientes
                                 </option>
-                                <option value="vencido" <?php echo $filtro_estado === 'vencido' ? 'selected' : ''; ?>>
-                                    <span>⚠️ Vencidos</span>
+                                <option value="vencido" <?php echo $filtro_estado === 'vencido' ? 'selected' : ''; ?> class="bg-gray-900">
+                                    ⚠️ Vencidos
                                 </option>
                             </select>
                         </div>
 
                         <!-- Filtro de Fecha Desde -->
-                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <label class="flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
+                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 Fecha desde
                             </label>
                             <div class="relative">
                                 <input type="date" name="fecha_desde" value="<?php echo $filtro_fecha_desde; ?>"
-                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 transition-colors bg-white pl-10">
+                                       class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-10">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">📅</span>
+                                    <span class="text-gray-400 sm:text-sm">📅</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Filtro de Fecha Hasta -->
-                        <div class="bg-gray-50 p-4 rounded-lg space-y-2">
-                            <label class="flex items-center text-sm font-medium text-gray-700 mb-1">
-                                <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg space-y-2 border border-gray-700">
+                            <label class="flex items-center text-sm font-medium text-gray-300 mb-1">
+                                <svg class="w-4 h-4 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 Fecha hasta
                             </label>
                             <div class="relative">
                                 <input type="date" name="fecha_hasta" value="<?php echo $filtro_fecha_hasta; ?>"
-                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 transition-colors bg-white pl-10">
+                                       class="w-full rounded-lg bg-gray-900 border-gray-700 text-gray-300 focus:border-purple-400 focus:ring-purple-400 transition-colors pl-10">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">📅</span>
+                                    <span class="text-gray-400 sm:text-sm">📅</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Botones de acción -->
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
                         <a href="assignments.php" 
-                           class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                           class="inline-flex items-center px-4 py-2 border border-gray-700 shadow-sm text-sm font-medium rounded-lg text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                             Limpiar filtros
                         </a>
                         <button type="submit" 
-                                class="inline-flex items-center px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                class="inline-flex items-center px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -256,11 +257,11 @@ $grupos = mysqli_stmt_get_result($stmt);
                     </div>
 
                     <?php if ($filtro_grupo || $filtro_estado || $filtro_fecha_desde || $filtro_fecha_hasta): ?>
-                    <div class="mt-4 flex items-center bg-purple-50 p-4 rounded-lg">
-                        <svg class="w-5 h-5 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mt-4 flex items-center bg-gray-800/50 backdrop-blur-sm p-4 rounded-lg border border-gray-700">
+                        <svg class="w-5 h-5 text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-sm text-purple-700">
+                        <span class="text-sm text-gray-300">
                             Filtros activos:
                             <?php
                             $filtros_activos = [];
@@ -277,14 +278,14 @@ $grupos = mysqli_stmt_get_result($stmt);
             </div>
 
             <!-- Lista de asignaciones -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-gray-200">
+            <div class="bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-700">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-900">Lista de Asignaciones</h2>
-                            <p class="text-sm text-gray-600 mt-1">Mostrando las asignaciones más recientes primero</p>
+                            <h2 class="text-xl font-bold text-gray-100">Lista de Asignaciones</h2>
+                            <p class="text-sm text-gray-400 mt-1">Mostrando las asignaciones más recientes primero</p>
                         </div>
-                        <div class="text-sm text-gray-600">
+                        <div class="text-sm text-gray-400">
                             <?php echo $total_registros; ?> asignaciones en total
                         </div>
                     </div>
@@ -292,39 +293,39 @@ $grupos = mysqli_stmt_get_result($stmt);
 
                 <?php if (mysqli_num_rows($asignaciones) > 0): ?>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="min-w-full divide-y divide-gray-700">
+                            <thead class="bg-gray-700">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Ejercicio
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Grupo y Grado
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Fechas
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Progreso
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Promedio
                                     </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
                                         Acciones
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="bg-gray-800 divide-y divide-gray-700">
                                 <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-50" data-is-new="<?php echo $asignacion['is_new'] ? 'true' : 'false'; ?>" data-assignment-id="<?php echo $asignacion['id']; ?>">
+                                    <tr class="hover:bg-gray-700" data-is-new="<?php echo $asignacion['is_new'] ? 'true' : 'false'; ?>" data-assignment-id="<?php echo $asignacion['id']; ?>">
                                         <td class="px-6 py-4">
                                             <div class="flex items-center">
                                                 <div>
-                                                    <div class="text-sm font-medium text-gray-900 flex items-center">
+                                                    <div class="text-sm font-medium text-gray-100 flex items-center">
                                                         <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
                                                         <?php if ($asignacion['is_new']): ?>
-                                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-700 text-purple-300">
                                                                 <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
                                                                     <circle cx="4" cy="4" r="3"/>
                                                                 </svg>
@@ -332,35 +333,35 @@ $grupos = mysqli_stmt_get_result($stmt);
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <div class="text-sm text-gray-500">
+                                                    <div class="text-sm text-gray-400">
                                                         <?php echo mb_strimwidth(htmlspecialchars($asignacion['ejercicio_descripcion']), 0, 100, "..."); ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-100">
                                                 Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?>
                                             </div>
                                             <?php if ($asignacion['grado']): ?>
-                                                <div class="text-sm text-gray-500">
+                                                <div class="text-sm text-gray-400">
                                                     <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado
                                                 </div>
                                             <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-100">
                                                 <span class="font-medium">Asignado:</span> 
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
                                             </div>
-                                            <div class="text-sm <?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-600 font-medium' : 'text-gray-500'; ?>">
+                                            <div class="text-sm <?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-600 font-medium' : 'text-gray-400'; ?>">
                                                 <span class="font-medium">Límite:</span>
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center">
-                                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                                <div class="w-full bg-gray-700 rounded-full h-2.5 mr-2">
                                                     <?php 
                                                     $porcentaje = $asignacion['total_estudiantes'] > 0 
                                                         ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
@@ -368,13 +369,13 @@ $grupos = mysqli_stmt_get_result($stmt);
                                                     ?>
                                                     <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
                                                 </div>
-                                                <span class="text-sm text-gray-600 whitespace-nowrap">
+                                                <span class="text-sm text-gray-400 whitespace-nowrap">
                                                     <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
                                                 </span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium <?php echo $asignacion['promedio_puntos'] >= 7 ? 'text-green-600' : 'text-gray-900'; ?>">
+                                            <div class="text-sm font-medium <?php echo $asignacion['promedio_puntos'] >= 7 ? 'text-green-600' : 'text-gray-100'; ?>">
                                                 <?php echo $asignacion['promedio_puntos'] ? number_format($asignacion['promedio_puntos'], 1) : '-'; ?>
                                                 <?php if ($asignacion['promedio_puntos'] >= 7): ?>
                                                     <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,7 +387,7 @@ $grupos = mysqli_stmt_get_result($stmt);
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-3">
                                                 <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
-                                                   class="text-purple-600 hover:text-purple-900 flex items-center">
+                                                   class="text-purple-400 hover:text-purple-300 flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -394,7 +395,7 @@ $grupos = mysqli_stmt_get_result($stmt);
                                                     Ver
                                                 </a>
                                                 <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
-                                                        class="text-red-600 hover:text-red-900 flex items-center">
+                                                        class="text-red-600 hover:text-red-300 flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                     </svg>
@@ -410,9 +411,9 @@ $grupos = mysqli_stmt_get_result($stmt);
 
                     <!-- Paginación -->
                     <?php if ($total_paginas > 1): ?>
-                        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                        <div class="bg-gray-700 px-6 py-4 border-t border-gray-700">
                             <div class="flex flex-col sm:flex-row justify-between items-center">
-                                <div class="text-sm text-gray-700 mb-4 sm:mb-0">
+                                <div class="text-sm text-gray-300 mb-4 sm:mb-0">
                                     Mostrando <span class="font-medium"><?php echo ($offset + 1); ?></span> a 
                                     <span class="font-medium"><?php echo min($offset + $items_por_pagina, $total_registros); ?></span> de 
                                     <span class="font-medium"><?php echo $total_registros; ?></span> resultados
@@ -420,14 +421,14 @@ $grupos = mysqli_stmt_get_result($stmt);
                                 <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px" aria-label="Pagination">
                                     <?php if ($pagina_actual > 1): ?>
                                         <a href="?pagina=1<?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-2 py-2 rounded-l-lg border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
                                             <span class="sr-only">Primera</span>
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7m0 0l7-7m-7 7h18" />
                                             </svg>
                                         </a>
                                         <a href="?pagina=<?php echo ($pagina_actual - 1); ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-3 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
                                             <span class="sr-only">Anterior</span>
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -442,32 +443,32 @@ $grupos = mysqli_stmt_get_result($stmt);
                                     $fin_rango = min($total_paginas, $pagina_actual + $rango);
 
                                     if ($inicio_rango > 1) {
-                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300">...</span>';
                                     }
 
                                     for ($i = $inicio_rango; $i <= $fin_rango; $i++):
                                     ?>
                                         <a href="?pagina=<?php echo $i; ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-4 py-2 border <?php echo $i === $pagina_actual ? 'z-10 bg-purple-50 border-purple-500 text-purple-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'; ?> text-sm font-medium">
+                                           class="relative inline-flex items-center px-4 py-2 border <?php echo $i === $pagina_actual ? 'z-10 bg-purple-700 border-purple-500 text-purple-300' : 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700'; ?> text-sm font-medium">
                                             <?php echo $i; ?>
                                         </a>
                                     <?php endfor;
 
                                     if ($fin_rango < $total_paginas) {
-                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>';
+                                        echo '<span class="relative inline-flex items-center px-4 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300">...</span>';
                                     }
                                     ?>
 
                                     <?php if ($pagina_actual < $total_paginas): ?>
                                         <a href="?pagina=<?php echo ($pagina_actual + 1); ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-3 py-2 border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
                                             <span class="sr-only">Siguiente</span>
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                             </svg>
                                         </a>
                                         <a href="?pagina=<?php echo $total_paginas; ?><?php echo $filtro_grupo ? '&grupo=' . urlencode($filtro_grupo) : ''; ?><?php echo $filtro_estado ? '&estado=' . urlencode($filtro_estado) : ''; ?><?php echo $filtro_fecha_desde ? '&fecha_desde=' . urlencode($filtro_fecha_desde) : ''; ?><?php echo $filtro_fecha_hasta ? '&fecha_hasta=' . urlencode($filtro_fecha_hasta) : ''; ?>"
-                                           class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                           class="relative inline-flex items-center px-2 py-2 rounded-r-lg border border-gray-600 bg-gray-800 text-sm font-medium text-gray-300 hover:bg-gray-700">
                                             <span class="sr-only">Última</span>
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
@@ -484,11 +485,11 @@ $grupos = mysqli_stmt_get_result($stmt);
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay asignaciones</h3>
-                        <p class="mt-1 text-sm text-gray-500">Comienza creando una nueva asignación para tus estudiantes.</p>
+                        <h3 class="mt-2 text-sm font-medium text-gray-100">No hay asignaciones</h3>
+                        <p class="mt-1 text-sm text-gray-400">Comienza creando una nueva asignación para tus estudiantes.</p>
                         <div class="mt-6">
                             <a href="new_assignment.php" 
-                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                 </svg>

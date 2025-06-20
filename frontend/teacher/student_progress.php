@@ -119,7 +119,7 @@ $asignaciones = mysqli_stmt_get_result($stmt);
     <title>Progreso del Estudiante - Talk Hands</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-b from-white to-purple-50 min-h-screen">
+<body class="bg-gray-900 min-h-screen">
     <?php include '../header.php'; ?>
 
     <main class="pt-32 pb-24">
@@ -127,51 +127,51 @@ $asignaciones = mysqli_stmt_get_result($stmt);
             <!-- Encabezado y navegación -->
             <div class="mb-8">
                 <div class="flex items-center gap-4 mb-4">
-                    <a href="dashboard.php" class="text-purple-600 hover:text-purple-700">
+                    <a href="dashboard.php" class="text-purple-400 hover:text-purple-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </a>
-                    <h1 class="text-3xl font-bold text-gray-900">
+                    <h1 class="text-3xl font-bold text-white">
                         Progreso del Estudiante
                     </h1>
                 </div>
             </div>
 
             <!-- Información del estudiante -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                        <h2 class="text-2xl font-bold text-white mb-2">
                             <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
                         </h2>
-                        <div class="text-gray-600">
+                        <div class="text-gray-300">
                             <p>Grupo <?php echo htmlspecialchars($estudiante['grupo']); ?> - <?php echo htmlspecialchars($estudiante['grado']); ?>° Grado</p>
                             <p class="text-sm"><?php echo htmlspecialchars($estudiante['email']); ?></p>
                         </div>
                     </div>
                     <div class="mt-4 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="text-center">
-                            <p class="text-sm text-gray-500">Tareas Completadas</p>
-                            <p class="text-2xl font-bold text-purple-600">
+                            <p class="text-sm text-gray-400">Tareas Completadas</p>
+                            <p class="text-2xl font-bold text-purple-400">
                                 <?php echo $estudiante['ejercicios_completados']; ?>/<?php echo $estudiante['total_asignaciones']; ?>
                             </p>
                         </div>
                         <div class="text-center">
-                            <p class="text-sm text-gray-500">Ejercicios Correctos</p>
-                            <p class="text-2xl font-bold text-green-600">
+                            <p class="text-sm text-gray-400">Ejercicios Correctos</p>
+                            <p class="text-2xl font-bold text-green-400">
                                 <?php echo $estudiante['ejercicios_practica_correctos']; ?>/<?php echo $estudiante['total_ejercicios_practica']; ?>
                             </p>
                         </div>
                         <div class="text-center">
-                            <p class="text-sm text-gray-500">Puntos Práctica</p>
-                            <p class="text-2xl font-bold text-pink-600">
+                            <p class="text-sm text-gray-400">Puntos Práctica</p>
+                            <p class="text-2xl font-bold text-pink-400">
                                 <?php echo $estudiante['puntos_practica']; ?>
                             </p>
                         </div>
                         <div class="text-center">
-                            <p class="text-sm text-gray-500">Puntos Totales</p>
-                            <p class="text-2xl font-bold text-blue-600">
+                            <p class="text-sm text-gray-400">Puntos Totales</p>
+                            <p class="text-2xl font-bold text-blue-400">
                                 <?php echo $estudiante['puntos_practica'] + $estudiante['puntos_asignaciones']; ?>
                             </p>
                         </div>
@@ -180,8 +180,8 @@ $asignaciones = mysqli_stmt_get_result($stmt);
             </div>
 
             <!-- Estadísticas de ejercicios de práctica -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Estadísticas por Tipo de Ejercicio</h3>
+            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
+                <h3 class="text-xl font-bold text-white mb-6">Estadísticas por Tipo de Ejercicio</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <?php 
                     $tipos_ejercicio = [
@@ -200,16 +200,16 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                         $stats = isset($stats_por_tipo[$tipo]) ? $stats_por_tipo[$tipo] : ['total_intentos' => 0, 'correctos' => 0];
                         $porcentaje = $stats['total_intentos'] > 0 ? round(($stats['correctos'] / $stats['total_intentos']) * 100) : 0;
                     ?>
-                        <div class="bg-purple-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-gray-800 mb-2"><?php echo $nombre; ?></h4>
+                        <div class="bg-gray-700/50 rounded-lg p-4">
+                            <h4 class="font-semibold text-white mb-2"><?php echo $nombre; ?></h4>
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-600">Correctos:</span>
-                                <span class="font-medium"><?php echo $stats['correctos']; ?>/<?php echo $stats['total_intentos']; ?></span>
+                                <span class="text-sm text-gray-300">Correctos:</span>
+                                <span class="font-medium text-gray-200"><?php echo $stats['correctos']; ?>/<?php echo $stats['total_intentos']; ?></span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-purple-600 h-2 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
+                            <div class="w-full bg-gray-600 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
                             </div>
-                            <p class="text-sm text-gray-500 mt-2">
+                            <p class="text-sm text-gray-400 mt-2">
                                 Tasa de éxito: <?php echo $porcentaje; ?>%
                             </p>
                         </div>
@@ -218,166 +218,232 @@ $asignaciones = mysqli_stmt_get_result($stmt);
             </div>
 
             <!-- Últimas prácticas -->
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h3 class="text-xl font-bold text-gray-900 mb-6">Últimas Prácticas</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tipo de Ejercicio
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Resultado
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Fecha
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php while ($practica = mysqli_fetch_assoc($ultimas_practicas)): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">
-                                            <?php echo $tipos_ejercicio[$practica['tipo_ejercicio']] ?? $practica['tipo_ejercicio']; ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <?php if ($practica['respuesta_correcta']): ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                Correcto
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                Incorrecto
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-500">
-                                            <?php echo date('d/m/Y H:i', strtotime($practica['fecha_practica'])); ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
+                <h3 class="text-xl font-bold text-white mb-6">Últimas Prácticas</h3>
+                <div id="practicas-container" class="overflow-x-auto">
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden md:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead class="bg-gray-700/50">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Tipo
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Resultado
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Fecha
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="practicas-tbody" class="bg-gray-800/30 divide-y divide-gray-700">
+                                    <?php while ($practica = mysqli_fetch_assoc($ultimas_practicas)): ?>
+                                        <tr class="hover:bg-gray-700/50">
+                                            <td class="px-3 py-4 whitespace-normal text-sm">
+                                                <div class="text-gray-200 break-words">
+                                                    <?php 
+                                                    $tipo = $tipos_ejercicio[$practica['tipo_ejercicio']] ?? $practica['tipo_ejercicio'];
+                                                    echo htmlspecialchars(substr($tipo, 0, 20));
+                                                    ?>
+                                                </div>
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap">
+                                                <?php if ($practica['respuesta_correcta']): ?>
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">
+                                                        Correcto
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-900/50 text-red-300">
+                                                        Incorrecto
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="px-3 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-400">
+                                                    <?php echo date('d/m/y', strtotime($practica['fecha_practica'])); ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Controles de paginación -->
                 <?php if ($total_paginas > 1): ?>
-                <div class="mt-6 flex justify-center">
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <div id="paginacion-container" class="mt-6 flex justify-center">
+                    <nav class="relative z-0 inline-flex flex-wrap justify-center gap-1" aria-label="Pagination">
                         <!-- Botón Anterior -->
                         <?php if ($pagina_actual > 1): ?>
-                            <a href="?id=<?php echo $estudiante_id; ?>&pagina=<?php echo ($pagina_actual - 1); ?>" 
-                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <button onclick="cargarPagina(<?php echo ($pagina_actual - 1); ?>)" 
+                               class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 bg-gray-700 border border-gray-600 rounded-md">
                                 <span class="sr-only">Anterior</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                                 </svg>
-                            </a>
+                            </button>
                         <?php endif; ?>
 
                         <!-- Números de página -->
-                        <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
-                            <a href="?id=<?php echo $estudiante_id; ?>&pagina=<?php echo $i; ?>" 
-                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium <?php echo $i === $pagina_actual ? 'text-purple-600 bg-purple-50 border-purple-500' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <?php 
+                        $start_page = max(1, min($pagina_actual - 1, $total_paginas - 2));
+                        $end_page = min($total_paginas, max($pagina_actual + 1, 3));
+                        
+                        if ($start_page > 1): ?>
+                            <button onclick="cargarPagina(1)" 
+                               class="relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-md">
+                                1
+                            </button>
+                            <?php if ($start_page > 2): ?>
+                                <span class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400">
+                                    ...
+                                </span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <button onclick="cargarPagina(<?php echo $i; ?>)" 
+                               class="relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-600 <?php echo $i === $pagina_actual ? 'bg-gray-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'; ?> rounded-md">
                                 <?php echo $i; ?>
-                            </a>
+                            </button>
                         <?php endfor; ?>
+
+                        <?php if ($end_page < $total_paginas): ?>
+                            <?php if ($end_page < $total_paginas - 1): ?>
+                                <span class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400">
+                                    ...
+                                </span>
+                            <?php endif; ?>
+                            <button onclick="cargarPagina(<?php echo $total_paginas; ?>)" 
+                               class="relative inline-flex items-center px-3 py-2 text-sm font-medium border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-md">
+                                <?php echo $total_paginas; ?>
+                            </button>
+                        <?php endif; ?>
 
                         <!-- Botón Siguiente -->
                         <?php if ($pagina_actual < $total_paginas): ?>
-                            <a href="?id=<?php echo $estudiante_id; ?>&pagina=<?php echo ($pagina_actual + 1); ?>" 
-                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <button onclick="cargarPagina(<?php echo ($pagina_actual + 1); ?>)" 
+                               class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 bg-gray-700 border border-gray-600 rounded-md">
                                 <span class="sr-only">Siguiente</span>
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                                 </svg>
-                            </a>
+                            </button>
                         <?php endif; ?>
                     </nav>
                 </div>
                 <?php endif; ?>
             </div>
 
+            <script>
+            async function cargarPagina(pagina) {
+                try {
+                    const estudiante_id = <?php echo $estudiante_id; ?>;
+                    const response = await fetch(`get_practicas.php?id=${estudiante_id}&pagina=${pagina}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Error al cargar los datos');
+                    }
+
+                    const data = await response.json();
+                    
+                    // Actualizar la tabla
+                    const tbody = document.getElementById('practicas-tbody');
+                    tbody.innerHTML = data.practicas_html;
+                    
+                    // Actualizar la paginación
+                    const paginacionContainer = document.getElementById('paginacion-container');
+                    paginacionContainer.innerHTML = data.paginacion_html;
+                    
+                    // Actualizar la URL sin recargar la página
+                    const nuevaUrl = new URL(window.location.href);
+                    nuevaUrl.searchParams.set('pagina', pagina);
+                    window.history.pushState({}, '', nuevaUrl);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+            </script>
+
             <!-- Historial de asignaciones -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-xl font-bold text-gray-900">Historial de Asignaciones</h3>
+            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-700">
+                <div class="p-6 border-b border-gray-700">
+                    <h3 class="text-xl font-bold text-white">Historial de Asignaciones</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Ejercicio
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Fecha Asignación
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Fecha Límite
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Estado
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Fecha Entrega
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Puntos
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     Evidencia
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-gray-800/30 divide-y divide-gray-700">
                             <?php if (mysqli_num_rows($asignaciones) > 0): ?>
                                 <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-700/50">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
+                                            <div class="text-sm font-medium text-gray-200">
                                                 <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
+                                            <div class="text-sm text-gray-400">
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
+                                            <div class="text-sm text-gray-400">
                                                 <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <?php if ($asignacion['estado'] === 'completado'): ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">
                                                     Completado
                                                 </span>
                                             <?php elseif ($asignacion['estado'] === 'pendiente'): ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300">
                                                     Pendiente
                                                 </span>
                                             <?php else: ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700/50 text-gray-300">
                                                     Sin iniciar
                                                 </span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">
+                                            <div class="text-sm text-gray-400">
                                                 <?php echo $asignacion['fecha_entrega'] 
                                                     ? date('d/m/Y H:i', strtotime($asignacion['fecha_entrega']))
                                                     : '-'; ?>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
+                                            <div class="text-sm text-gray-200">
                                                 <?php echo $asignacion['puntos_obtenidos'] ?? '-'; ?>
                                             </div>
                                         </td>
@@ -385,18 +451,18 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                                             <?php if ($asignacion['evidencia_path']): ?>
                                                 <a href="/<?php echo htmlspecialchars($asignacion['evidencia_path']); ?>" 
                                                    target="_blank"
-                                                   class="text-purple-600 hover:text-purple-900">
+                                                   class="text-purple-400 hover:text-purple-300">
                                                     Ver evidencia
                                                 </a>
                                             <?php else: ?>
-                                                <span class="text-gray-400">-</span>
+                                                <span class="text-gray-500">-</span>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-400">
                                         No hay asignaciones para este estudiante
                                     </td>
                                 </tr>
@@ -410,4 +476,4 @@ $asignaciones = mysqli_stmt_get_result($stmt);
 
     <?php include '../footer.php'; ?>
 </body>
-</html> 
+</html>
