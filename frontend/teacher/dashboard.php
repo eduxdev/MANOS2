@@ -405,19 +405,66 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                     <div class="overflow-x-auto">
                         <div class="inline-block min-w-full align-middle">
                             <div class="overflow-hidden md:rounded-lg">
-                                <table class="min-w-full">
+                                <!-- Vista móvil -->
+                                <div class="md:hidden">
+                                    <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
+                                        <div class="border-b border-gray-700 p-4">
+                                            <div class="mb-3">
+                                                <h4 class="text-sm font-medium text-gray-100">
+                                                    <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
+                                                </h4>
+                                                <div class="mt-1 text-xs text-gray-400 space-y-1">
+                                                    <p>Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?> - 
+                                                       <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado</p>
+                                                    <p>Asignado: <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?></p>
+                                                    <p class="<?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-400' : ''; ?>">
+                                                        Límite: <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center mb-3">
+                                                <div class="flex-1">
+                                                    <div class="w-full bg-gray-700 rounded-full h-2">
+                                                        <?php 
+                                                        $porcentaje = $asignacion['total_estudiantes'] > 0 
+                                                            ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
+                                                            : 0;
+                                                        ?>
+                                                        <div class="bg-purple-600 h-2 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
+                                                    </div>
+                                                    <p class="mt-1 text-xs text-gray-400 text-center">
+                                                        <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?> completados
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-end gap-3">
+                                                <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
+                                                   class="text-purple-400 hover:text-purple-300 transition-colors text-xs">
+                                                    Ver
+                                                </a>
+                                                <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
+                                                        class="text-red-400 hover:text-red-300 transition-colors text-xs">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+
+                                <!-- Vista desktop -->
+                                <table class="min-w-full hidden md:table">
                                     <thead>
                                         <tr class="border-b border-gray-700">
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 Ejercicio
                                             </th>
-                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 Grupo
                                             </th>
-                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 Asignado
                                             </th>
-                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                                                 Límite
                                             </th>
                                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -429,21 +476,18 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                         </tr>
                                     </thead>
                                     <tbody class="bg-gray-900/30 divide-y divide-gray-700">
-                                        <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
+                                        <?php 
+                                        // Reiniciar el puntero del resultado
+                                        mysqli_data_seek($asignaciones, 0);
+                                        while ($asignacion = mysqli_fetch_assoc($asignaciones)): 
+                                        ?>
                                             <tr class="hover:bg-gray-900/50 transition-colors">
                                                 <td class="px-3 py-4 whitespace-normal">
                                                     <div class="text-sm font-medium text-gray-100">
                                                         <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
-                                                        <!-- Información adicional visible solo en móvil -->
-                                                        <div class="md:hidden mt-1 text-xs text-gray-400">
-                                                            Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?> - 
-                                                            <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado<br>
-                                                            Asignado: <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?><br>
-                                                            Límite: <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
-                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
                                                         <?php 
                                                         echo "Grupo " . htmlspecialchars($asignacion['grupo_asignado']);
@@ -453,39 +497,34 @@ $result_ranking = mysqli_query($conexion, $query_ranking);
                                                         ?>
                                                     </div>
                                                 </td>
-                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
                                                         <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?>
                                                     </div>
                                                 </td>
-                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
                                                         <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
                                                     </div>
                                                 </td>
                                                 <td class="px-3 py-4">
                                                     <div class="flex items-center">
-                                                        <div class="w-16 md:w-24 bg-gray-700 rounded-full h-2.5">
-                                                            <?php 
-                                                            $porcentaje = $asignacion['total_estudiantes'] > 0 
-                                                                ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
-                                                                : 0;
-                                                            ?>
+                                                        <div class="w-24 bg-gray-700 rounded-full h-2.5">
                                                             <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
                                                         </div>
-                                                        <span class="ml-2 text-xs md:text-sm text-gray-300">
+                                                        <span class="ml-2 text-sm text-gray-300">
                                                             <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center justify-end md:justify-end gap-3">
+                                                    <div class="flex items-center justify-end gap-3">
                                                         <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
-                                                           class="text-purple-400 hover:text-purple-300 transition-colors text-xs md:text-sm">
+                                                           class="text-purple-400 hover:text-purple-300 transition-colors text-sm">
                                                             Ver
                                                         </a>
                                                         <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
-                                                                class="text-red-400 hover:text-red-300 transition-colors text-xs md:text-sm">
+                                                                class="text-red-400 hover:text-red-300 transition-colors text-sm">
                                                             Eliminar
                                                         </button>
                                                     </div>

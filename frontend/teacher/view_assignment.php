@@ -83,6 +83,8 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
 </head>
 <body class="bg-gray-900 min-h-screen flex flex-col">
     <?php include '../header.php'; ?>
+    <?php include '../components/modal.php'; ?>
+    <?php showModal('message-modal'); ?>
 
     <main class="flex-grow pt-32 pb-24 min-h-screen">
         <div class="container mx-auto px-4 max-w-7xl">
@@ -150,37 +152,94 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
                         Progreso de Estudiantes - Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?>
                     </h2>
                 </div>
-                <div class="overflow-x-auto">
-                    <div class="inline-block min-w-full align-middle">
-                        <div class="overflow-hidden md:rounded-lg">
-                            <table class="min-w-full divide-y divide-gray-700">
-                                <thead class="bg-gray-900/50">
-                                    <tr>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Estudiante
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Estado
-                                        </th>
-                                        <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Fecha de Entrega
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Puntos
-                                        </th>
-                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Evidencia
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-gray-900/30 divide-y divide-gray-700">
-                                    <?php if (empty($estudiantes_data)): ?>
+
+                <?php if (empty($estudiantes_data)): ?>
+                    <div class="text-center text-gray-400 py-8">
+                        <p>No hay estudiantes en este grupo</p>
+                    </div>
+                <?php else: ?>
+                    <!-- Vista móvil -->
+                    <div class="md:hidden">
+                        <?php foreach ($estudiantes_data as $estudiante): ?>
+                            <div class="border-b border-gray-700 p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-medium text-gray-100">
+                                            <?php echo htmlspecialchars($estudiante['nombre'] . ' ' . $estudiante['apellidos']); ?>
+                                        </h4>
+                                        <div class="mt-2 space-y-2">
+                                            <div class="flex items-center">
+                                                <?php if ($estudiante['estado'] === 'completado'): ?>
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300 border border-green-700">
+                                                        Completado
+                                                    </span>
+                                                <?php elseif ($estudiante['estado'] === 'pendiente'): ?>
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300 border border-yellow-700">
+                                                        Pendiente
+                                                    </span>
+                                                <?php else: ?>
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-800/50 text-gray-300 border border-gray-600">
+                                                        Sin iniciar
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($estudiante['fecha_entrega']): ?>
+                                                <div class="text-xs text-gray-400">
+                                                    Entregado: <?php echo date('d/m/y H:i', strtotime($estudiante['fecha_entrega'])); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($estudiante['puntos_obtenidos']): ?>
+                                                <div class="text-xs text-purple-400">
+                                                    Puntos: <?php echo $estudiante['puntos_obtenidos']; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <?php if ($estudiante['evidencia_path']): ?>
+                                        <div class="flex flex-col gap-2 items-end">
+                                            <a href="/<?php echo htmlspecialchars($estudiante['evidencia_path']); ?>" 
+                                               target="_blank"
+                                               class="text-purple-400 hover:text-purple-300 transition-colors text-xs">
+                                                Ver evidencia
+                                            </a>
+                                            <?php if ($estudiante['estado'] === 'completado'): ?>
+                                                <button onclick="invalidateSubmission(<?php echo $asignacion_id; ?>, <?php echo $estudiante['id']; ?>)"
+                                                        class="text-red-400 hover:text-red-300 transition-colors text-xs">
+                                                    Invalidar
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- Vista desktop -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden">
+                                <table class="min-w-full divide-y divide-gray-700">
+                                    <thead class="bg-gray-900/50">
                                         <tr>
-                                            <td colspan="5" class="px-3 py-4 text-center text-gray-400">
-                                                No hay estudiantes en este grupo
-                                            </td>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Estudiante
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Estado
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Fecha de Entrega
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Puntos
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Evidencia
+                                            </th>
                                         </tr>
-                                    <?php else: ?>
+                                    </thead>
+                                    <tbody class="bg-gray-900/30 divide-y divide-gray-700">
                                         <?php foreach ($estudiantes_data as $estudiante): ?>
                                             <tr class="hover:bg-gray-700/50">
                                                 <td class="px-3 py-4 whitespace-normal">
@@ -203,7 +262,7 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
                                                         </span>
                                                     <?php endif; ?>
                                                 </td>
-                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                <td class="px-3 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-300">
                                                         <?php echo $estudiante['fecha_entrega'] 
                                                             ? date('d/m/y H:i', strtotime($estudiante['fecha_entrega']))
@@ -217,23 +276,31 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
                                                 </td>
                                                 <td class="px-3 py-4 whitespace-nowrap">
                                                     <?php if ($estudiante['evidencia_path']): ?>
-                                                        <a href="/<?php echo htmlspecialchars($estudiante['evidencia_path']); ?>" 
-                                                           target="_blank"
-                                                           class="text-purple-400 hover:text-purple-300 transition-colors">
-                                                            Ver
-                                                        </a>
+                                                        <div class="flex items-center gap-3">
+                                                            <a href="/<?php echo htmlspecialchars($estudiante['evidencia_path']); ?>" 
+                                                               target="_blank"
+                                                               class="text-purple-400 hover:text-purple-300 transition-colors text-sm">
+                                                                Ver
+                                                            </a>
+                                                            <?php if ($estudiante['estado'] === 'completado'): ?>
+                                                                <button onclick="invalidateSubmission(<?php echo $asignacion_id; ?>, <?php echo $estudiante['id']; ?>)"
+                                                                        class="text-red-400 hover:text-red-300 transition-colors text-sm">
+                                                                    Invalidar
+                                                                </button>
+                                                            <?php endif; ?>
+                                                        </div>
                                                     <?php else: ?>
                                                         <span class="text-gray-600">-</span>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
     </main>
@@ -241,5 +308,39 @@ while ($estudiante = mysqli_fetch_assoc($estudiantes)) {
     <footer class="mt-auto">
         <?php include '../footer.php'; ?>
     </footer>
+
+    <script>
+        // Función para invalidar entrega
+        function invalidateSubmission(assignmentId, studentId) {
+            showMessageModal(
+                'message-modal',
+                'Confirmar invalidación',
+                '¿Estás seguro de que deseas invalidar esta entrega? Se restarán los puntos obtenidos.',
+                'handleInvalidateSubmission(' + assignmentId + ', ' + studentId + ')'
+            );
+        }
+
+        function handleInvalidateSubmission(assignmentId, studentId) {
+            fetch('handle_assignment_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=invalidate_submission&assignment_id=' + assignmentId + '&student_id=' + studentId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessageModal('message-modal', 'Éxito', 'Entrega invalidada correctamente', 'location.reload()');
+                } else {
+                    showMessageModal('message-modal', 'Error', 'Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessageModal('message-modal', 'Error', 'Error al procesar la solicitud');
+            });
+        }
+    </script>
 </body>
 </html> 
