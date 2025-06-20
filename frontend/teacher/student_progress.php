@@ -375,100 +375,112 @@ $asignaciones = mysqli_stmt_get_result($stmt);
                     <h3 class="text-xl font-bold text-white">Historial de Asignaciones</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-700">
-                        <thead class="bg-gray-700/50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Ejercicio
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Fecha Asignación
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Fecha Límite
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Estado
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Fecha Entrega
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Puntos
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    Evidencia
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-gray-800/30 divide-y divide-gray-700">
-                            <?php if (mysqli_num_rows($asignaciones) > 0): ?>
-                                <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-700/50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-200">
-                                                <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-400">
-                                                <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-400">
-                                                <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <?php if ($asignacion['estado'] === 'completado'): ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">
-                                                    Completado
-                                                </span>
-                                            <?php elseif ($asignacion['estado'] === 'pendiente'): ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300">
-                                                    Pendiente
-                                                </span>
-                                            <?php else: ?>
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700/50 text-gray-300">
-                                                    Sin iniciar
-                                                </span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-400">
-                                                <?php echo $asignacion['fecha_entrega'] 
-                                                    ? date('d/m/Y H:i', strtotime($asignacion['fecha_entrega']))
-                                                    : '-'; ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-200">
-                                                <?php echo $asignacion['puntos_obtenidos'] ?? '-'; ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <?php if ($asignacion['evidencia_path']): ?>
-                                                <a href="/<?php echo htmlspecialchars($asignacion['evidencia_path']); ?>" 
-                                                   target="_blank"
-                                                   class="text-purple-400 hover:text-purple-300">
-                                                    Ver evidencia
-                                                </a>
-                                            <?php else: ?>
-                                                <span class="text-gray-500">-</span>
-                                            <?php endif; ?>
-                                        </td>
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden md:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead class="bg-gray-700/50">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Ejercicio
+                                        </th>
+                                        <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Asignado
+                                        </th>
+                                        <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Límite
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Estado
+                                        </th>
+                                        <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Entrega
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Puntos
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Evidencia
+                                        </th>
                                     </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-gray-400">
-                                        No hay asignaciones para este estudiante
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody class="bg-gray-800/30 divide-y divide-gray-700">
+                                    <?php if (mysqli_num_rows($asignaciones) > 0): ?>
+                                        <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
+                                            <tr class="hover:bg-gray-700/50">
+                                                <td class="px-3 py-4 whitespace-normal text-sm">
+                                                    <div class="text-gray-200 break-words">
+                                                        <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
+                                                        <!-- Información adicional visible solo en móvil -->
+                                                        <div class="md:hidden mt-1 text-xs text-gray-400">
+                                                            Asignado: <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?><br>
+                                                            Límite: <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?><br>
+                                                            <?php if ($asignacion['fecha_entrega']): ?>
+                                                                Entrega: <?php echo date('d/m/y', strtotime($asignacion['fecha_entrega'])); ?>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-400">
+                                                        <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?>
+                                                    </div>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-400">
+                                                        <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
+                                                    </div>
+                                                </td>
+                                                <td class="px-3 py-4 whitespace-nowrap">
+                                                    <?php if ($asignacion['estado'] === 'completado'): ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300">
+                                                            Completado
+                                                        </span>
+                                                    <?php elseif ($asignacion['estado'] === 'pendiente'): ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-900/50 text-yellow-300">
+                                                            Pendiente
+                                                        </span>
+                                                    <?php else: ?>
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700/50 text-gray-300">
+                                                            Sin iniciar
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-400">
+                                                        <?php echo $asignacion['fecha_entrega'] 
+                                                            ? date('d/m/y', strtotime($asignacion['fecha_entrega']))
+                                                            : '-'; ?>
+                                                    </div>
+                                                </td>
+                                                <td class="px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-200">
+                                                        <?php echo $asignacion['puntos_obtenidos'] ?? '-'; ?>
+                                                    </div>
+                                                </td>
+                                                <td class="px-3 py-4 whitespace-nowrap">
+                                                    <?php if ($asignacion['evidencia_path']): ?>
+                                                        <a href="/<?php echo htmlspecialchars($asignacion['evidencia_path']); ?>" 
+                                                           target="_blank"
+                                                           class="text-purple-400 hover:text-purple-300">
+                                                            Ver
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="text-gray-500">-</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="7" class="px-3 py-4 text-center text-gray-400">
+                                                No hay asignaciones para este estudiante
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
