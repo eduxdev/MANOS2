@@ -293,120 +293,135 @@ $grupos = mysqli_stmt_get_result($stmt);
 
                 <?php if (mysqli_num_rows($asignaciones) > 0): ?>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-700">
-                            <thead class="bg-gray-700">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Ejercicio
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Grupo y Grado
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Fechas
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Progreso
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Promedio
-                                    </th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
-                                    <tr class="hover:bg-gray-700" data-is-new="<?php echo $asignacion['is_new'] ? 'true' : 'false'; ?>" data-assignment-id="<?php echo $asignacion['id']; ?>">
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div>
-                                                    <div class="text-sm font-medium text-gray-100 flex items-center">
-                                                        <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
-                                                        <?php if ($asignacion['is_new']): ?>
-                                                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-700 text-purple-300">
-                                                                <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
-                                                                    <circle cx="4" cy="4" r="3"/>
-                                                                </svg>
-                                                                Nuevo
-                                                            </span>
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden md:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-700">
+                                    <thead class="bg-gray-700">
+                                        <tr>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Ejercicio
+                                            </th>
+                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Grupo
+                                            </th>
+                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Fechas
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Progreso
+                                            </th>
+                                            <th scope="col" class="hidden md:table-cell px-3 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Promedio
+                                            </th>
+                                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                Acciones
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                        <?php while ($asignacion = mysqli_fetch_assoc($asignaciones)): ?>
+                                            <tr class="hover:bg-gray-700" data-is-new="<?php echo $asignacion['is_new'] ? 'true' : 'false'; ?>" data-assignment-id="<?php echo $asignacion['id']; ?>">
+                                                <td class="px-3 py-4">
+                                                    <div class="flex items-center">
+                                                        <div>
+                                                            <div class="text-sm font-medium text-gray-100 flex items-center">
+                                                                <?php echo htmlspecialchars($asignacion['ejercicio_titulo']); ?>
+                                                                <?php if ($asignacion['is_new']): ?>
+                                                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-700 text-purple-300">
+                                                                        <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 8 8">
+                                                                            <circle cx="4" cy="4" r="3"/>
+                                                                        </svg>
+                                                                        Nuevo
+                                                                    </span>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <div class="text-sm text-gray-400">
+                                                                <?php echo mb_strimwidth(htmlspecialchars($asignacion['ejercicio_descripcion']), 0, 100, "..."); ?>
+                                                            </div>
+                                                            <!-- Información adicional visible solo en móvil -->
+                                                            <div class="md:hidden mt-2 space-y-1 text-xs">
+                                                                <div class="text-gray-300">
+                                                                    Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?>
+                                                                    <?php if ($asignacion['grado']): ?>
+                                                                        - <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado
+                                                                    <?php endif; ?>
+                                                                </div>
+                                                                <div class="text-gray-400">
+                                                                    Asignado: <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?>
+                                                                </div>
+                                                                <div class="<?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-400' : 'text-gray-400'; ?>">
+                                                                    Límite: <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
+                                                                </div>
+                                                                <div class="text-purple-400">
+                                                                    Promedio: <?php echo $asignacion['promedio_puntos'] ? number_format($asignacion['promedio_puntos'], 1) : '-'; ?>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-100">
+                                                        Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?>
+                                                    </div>
+                                                    <?php if ($asignacion['grado']): ?>
+                                                        <div class="text-sm text-gray-400">
+                                                            <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-100">
+                                                        <span class="font-medium">Asignado:</span> 
+                                                        <?php echo date('d/m/y', strtotime($asignacion['fecha_asignacion'])); ?>
+                                                    </div>
+                                                    <div class="text-sm <?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-400' : 'text-gray-400'; ?>">
+                                                        <span class="font-medium">Límite:</span>
+                                                        <?php echo date('d/m/y', strtotime($asignacion['fecha_limite'])); ?>
+                                                    </div>
+                                                </td>
+                                                <td class="px-3 py-4">
+                                                    <div class="flex items-center">
+                                                        <div class="w-16 md:w-24 bg-gray-700 rounded-full h-2.5 mr-2">
+                                                            <?php 
+                                                            $porcentaje = $asignacion['total_estudiantes'] > 0 
+                                                                ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
+                                                                : 0;
+                                                            ?>
+                                                            <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
+                                                        </div>
+                                                        <span class="text-xs md:text-sm text-gray-400 whitespace-nowrap">
+                                                            <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="hidden md:table-cell px-3 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium <?php echo $asignacion['promedio_puntos'] >= 7 ? 'text-green-400' : 'text-gray-100'; ?>">
+                                                        <?php echo $asignacion['promedio_puntos'] ? number_format($asignacion['promedio_puntos'], 1) : '-'; ?>
+                                                        <?php if ($asignacion['promedio_puntos'] >= 7): ?>
+                                                            <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
                                                         <?php endif; ?>
                                                     </div>
-                                                    <div class="text-sm text-gray-400">
-                                                        <?php echo mb_strimwidth(htmlspecialchars($asignacion['ejercicio_descripcion']), 0, 100, "..."); ?>
+                                                </td>
+                                                <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <div class="flex justify-end gap-3">
+                                                        <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
+                                                           class="text-purple-400 hover:text-purple-300 transition-colors text-xs md:text-sm">
+                                                            Ver
+                                                        </a>
+                                                        <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
+                                                                class="text-red-400 hover:text-red-300 transition-colors text-xs md:text-sm">
+                                                            Eliminar
+                                                        </button>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-100">
-                                                Grupo <?php echo htmlspecialchars($asignacion['grupo_asignado']); ?>
-                                            </div>
-                                            <?php if ($asignacion['grado']): ?>
-                                                <div class="text-sm text-gray-400">
-                                                    <?php echo htmlspecialchars($asignacion['grado']); ?>° Grado
-                                                </div>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-100">
-                                                <span class="font-medium">Asignado:</span> 
-                                                <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
-                                            </div>
-                                            <div class="text-sm <?php echo strtotime($asignacion['fecha_limite']) < time() ? 'text-red-600 font-medium' : 'text-gray-400'; ?>">
-                                                <span class="font-medium">Límite:</span>
-                                                <?php echo date('d/m/Y', strtotime($asignacion['fecha_limite'])); ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                <div class="w-full bg-gray-700 rounded-full h-2.5 mr-2">
-                                                    <?php 
-                                                    $porcentaje = $asignacion['total_estudiantes'] > 0 
-                                                        ? ($asignacion['estudiantes_completados'] / $asignacion['total_estudiantes']) * 100 
-                                                        : 0;
-                                                    ?>
-                                                    <div class="bg-purple-600 h-2.5 rounded-full" style="width: <?php echo $porcentaje; ?>%"></div>
-                                                </div>
-                                                <span class="text-sm text-gray-400 whitespace-nowrap">
-                                                    <?php echo $asignacion['estudiantes_completados']; ?>/<?php echo $asignacion['total_estudiantes']; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium <?php echo $asignacion['promedio_puntos'] >= 7 ? 'text-green-600' : 'text-gray-100'; ?>">
-                                                <?php echo $asignacion['promedio_puntos'] ? number_format($asignacion['promedio_puntos'], 1) : '-'; ?>
-                                                <?php if ($asignacion['promedio_puntos'] >= 7): ?>
-                                                    <svg class="inline-block w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div class="flex justify-end space-x-3">
-                                                <a href="view_assignment.php?id=<?php echo $asignacion['id']; ?>" 
-                                                   class="text-purple-400 hover:text-purple-300 flex items-center">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                    </svg>
-                                                    Ver
-                                                </a>
-                                                <button onclick="deleteAssignment(<?php echo $asignacion['id']; ?>)"
-                                                        class="text-red-600 hover:text-red-300 flex items-center">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Paginación -->
